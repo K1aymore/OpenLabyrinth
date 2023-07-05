@@ -1,10 +1,17 @@
 extends Control
 
+const DEFAULTIP = "localhost"
+const DEFAULTPORT = 4433
+
 @onready var network := $Network
 @onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
 
+@onready var connectIP : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectIP
+@onready var connectPort : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectPort
+
 var currentPlayerID := 1
 var currentPlayer := false
+
 
 func _ready():
 	# Start paused.
@@ -16,37 +23,46 @@ func _ready():
 
 
 
-func _on_host_pressed():
-	network.createServer()
+func _on_client_pressed():
+	var ip = connectIP.text if connectIP.text != "" else DEFAULTIP
+	var port = connectPort.text.to_int() if connectPort.text != "" else DEFAULTPORT
+	
+	var peer = ENetMultiplayerPeer.new()
+	peer.create_client(ip, port)
+	multiplayer.multiplayer_peer = peer
+	multiplayer.connected_to_server.connect(connectSuccess)
+	
+	await get_tree().create_timer(2).timeout
+	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
+		peer.close()
+		multiplayer.multiplayer_peer = null
+		print("couldn't connect in 2 secs")
+
+
+func connectSuccess():
 	closeMainMenu()
 
+func connectFail():
+	print("Failed to start multiplayer client.")
 
-func _on_client_pressed():
-	network.joinAsClient()
 
 
 func closeMainMenu():
 	$MainMenu.visible = false
-	$HBoxContainer/Panel/StartButton.visible = multiplayer.is_server()
 
 
-func _on_start_button_pressed():
-	startGame.rpc()
 
-
-@rpc("call_local")
+@rpc
 func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
-	$HBoxContainer/Panel/StartButton.visible = false
 	$HBoxContainer/Panel/GameActions.visible = true
-	network.setCurrentPlayer()
-	nextTurn.rpc()
 
 
-@rpc("any_peer", "call_local")
-func nextTurn():
-	currentPlayerID = network.nextPlayer()
+
+@rpc
+func nextTurn(nextPlayer : int):
+	currentPlayerID = nextPlayer
 	currentPlayer = currentPlayerID == multiplayer.get_unique_id()
 	board.currentPlayer = currentPlayer
 	for button in $HBoxContainer/Panel/GameActions.get_children():
@@ -54,11 +70,8 @@ func nextTurn():
 			button.disabled = !currentPlayer
 
 
-@rpc("any_peer", "call_local")
-func updatePlayerList():
-	var playerList : String = "Players:\n"
-	for player in network.playerIDs:
-		playerList += str(player) + "\n"
+@rpc
+func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
