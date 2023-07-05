@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://g6ukwrh2fuwv"]
+
+[ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board.tscn" id="1_hmrev"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Game" type="Node2D" parent="."]
+
+[node name="Board" parent="Game" instance=ExtResource("1_hmrev")]
+position = Vector2(-387, -380)
+
+[node name="Camera2D" type="Camera2D" parent="Game"]
