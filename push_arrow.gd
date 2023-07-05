@@ -1,5 +1,6 @@
 extends Node2D
 
+class_name PushArrow
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -13,4 +14,9 @@ func _process(delta):
 
 
 func _on_arrow_button_pressed():
+	setSparePos.rpc()
+
+
+@rpc("any_peer", "call_local")
+func setSparePos():
 	get_parent().spareTile.position = position

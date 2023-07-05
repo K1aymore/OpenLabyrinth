@@ -4,6 +4,7 @@ var tileScene := preload("res://tile.tscn")
 var pushArrowScene := preload("res://push_arrow.tscn")
 
 var tiles : Array
+var arrows : Array
 @onready var spareTile : Tile = $startingSpareTile
 
 enum {
@@ -31,12 +32,14 @@ func _ready():
 		arrow.position.y = -Tile.TILESIZE
 		arrow.rotation_degrees = 180
 		add_child(arrow)
+		arrows.append(arrow)
 	
 	for col in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
 		arrow.position.x = col * Tile.TILESIZE
 		arrow.position.y = Tile.TILESIZE * 7
 		add_child(arrow)
+		arrows.append(arrow)
 	
 	for row in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -44,6 +47,7 @@ func _ready():
 		arrow.position.x = -Tile.TILESIZE
 		arrow.rotation_degrees = 90
 		add_child(arrow)
+		arrows.append(arrow)
 		
 	for row in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -51,21 +55,30 @@ func _ready():
 		arrow.position.x = Tile.TILESIZE * 7
 		arrow.rotation_degrees = 270
 		add_child(arrow)
+		arrows.append(arrow)
 
 
 func _on_button_pressed():
+	var canPush := false
+	for arrow in arrows:
+		if arrow.position.is_equal_approx(spareTile.position) && arrow.visible:
+			canPush = true
+	
+	if !canPush:
+		return
 	
 	if is_equal_approx(spareTile.position.x, -Tile.TILESIZE):
-		pushLine(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.RIGHT)
+		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.RIGHT)
 	elif is_equal_approx(spareTile.position.x, Tile.TILESIZE * 7):
-		pushLine(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.LEFT)
+		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.LEFT)
 	elif is_equal_approx(spareTile.position.y, -Tile.TILESIZE):
-		pushLine(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.DOWN)
+		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.DOWN)
 	elif is_equal_approx(spareTile.position.y, Tile.TILESIZE * 7):
-		pushLine(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.UP)
+		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.UP)
 
 
-func pushLine(lineNum : int, rowCol, dir : Tile.DIR):
+@rpc("any_peer", "call_local")
+func pushLine(lineNum : int, rowCol, dir : Tile.DIR):	
 	var pushedTiles : Array
 	
 	pushedTiles = getTileLine(lineNum, rowCol)
@@ -81,6 +94,9 @@ func pushLine(lineNum : int, rowCol, dir : Tile.DIR):
 			spareTile = tile
 			continue
 	spareTile.z_index = 1
+	
+	for arrow in arrows:
+		arrow.visible = !arrow.position.is_equal_approx(spareTile.position)
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:

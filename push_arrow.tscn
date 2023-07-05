@@ -7,11 +7,11 @@
 script = ExtResource("2_tbqx7")
 
 [node name="ArrowButton" type="TextureButton" parent="."]
-offset_left = -53.0
-offset_top = -28.0
-offset_right = 333.0
-offset_bottom = 188.0
-scale = Vector2(0.274, 0.274)
+offset_left = -34.0
+offset_top = -11.0
+offset_right = 352.0
+offset_bottom = 205.0
+scale = Vector2(0.177, 0.177)
 size_flags_horizontal = 4
 size_flags_vertical = 4
 texture_normal = ExtResource("1_teujv")
