@@ -8,13 +8,9 @@ func _ready():
 	get_tree().paused = true
 	# You can save bandwidth by disabling server relay and peer notifications.
 	multiplayer.server_relay = false
+	$MainMenu.visible = true
 
 
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
 
 
 func _on_host_pressed():
@@ -47,3 +43,4 @@ func _on_client_pressed():
 
 func start_game():
 	get_tree().paused = false
+	$MainMenu.visible = false

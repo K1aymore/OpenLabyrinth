@@ -17,6 +17,7 @@ func _ready():
 	$Icon.visible = false
 	tiles.append(spareTile)
 	spareTile.position = Vector2(3 * Tile.TILESIZE, -Tile.TILESIZE)
+	spareTile.spritePos = spareTile.global_position
 	spareTile.z_index = 1
 	
 	for vertNum in range(0, 7):
@@ -58,7 +59,7 @@ func _ready():
 		arrows.append(arrow)
 
 
-func _on_button_pressed():
+func _on_push_pressed():
 	var canPush := false
 	for arrow in arrows:
 		if arrow.position.is_equal_approx(spareTile.position) && arrow.visible:
@@ -116,3 +117,11 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 	return lineTiles
 
 
+
+func _on_rotate_pressed():
+	rotateTile.rpc()
+
+
+@rpc("any_peer", "call_local")
+func rotateTile():
+	spareTile.rotation_degrees = snappedi(spareTile.rotation_degrees + 90, 90)

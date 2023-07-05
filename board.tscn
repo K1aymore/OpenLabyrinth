@@ -8,20 +8,10 @@
 script = ExtResource("1_bar03")
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(-64, -64)
-scale = Vector2(7, 7)
+position = Vector2(-32, -32)
+scale = Vector2(3.5, 3.5)
 texture = ExtResource("1_8eo5o")
 centered = false
 
-[node name="Button" type="Button" parent="."]
-offset_left = -571.0
-offset_top = 275.0
-offset_right = -489.0
-offset_bottom = 306.0
-text = "Push"
-icon_alignment = 1
-
 [node name="startingSpareTile" parent="." instance=ExtResource("3_b5p13")]
 position = Vector2(377, -240)
-
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
