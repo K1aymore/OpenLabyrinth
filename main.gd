@@ -18,14 +18,16 @@ func _ready():
 
 func _on_host_pressed():
 	network.createServer()
-	$MainMenu.visible = false
-	$HBoxContainer/Panel/StartButton.visible = true
+	closeMainMenu()
 
 
 func _on_client_pressed():
 	network.joinAsClient()
+
+
+func closeMainMenu():
 	$MainMenu.visible = false
-	$HBoxContainer/Panel/StartButton.visible = false
+	$HBoxContainer/Panel/StartButton.visible = multiplayer.is_server()
 
 
 func _on_start_button_pressed():
@@ -38,6 +40,7 @@ func startGame():
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/StartButton.visible = false
 	$HBoxContainer/Panel/GameActions.visible = true
+	network.setCurrentPlayer()
 	nextTurn.rpc()
 
 
@@ -51,6 +54,12 @@ func nextTurn():
 			button.disabled = !currentPlayer
 
 
+@rpc("any_peer", "call_local")
+func updatePlayerList():
+	var playerList : String = "Players:\n"
+	for player in network.playerIDs:
+		playerList += str(player) + "\n"
+	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
 func _on_push_pressed():

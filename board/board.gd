@@ -133,7 +133,6 @@ func rotateTile():
 
 
 func arrowPressed(pos):
-	print(currentPlayer)
 	if currentPlayer:
 		moveSpareTile.rpc(pos)
 
