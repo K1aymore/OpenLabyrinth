@@ -16,3 +16,4 @@ grow_vertical = 2
 position = Vector2(-387, -380)
 
 [node name="Camera2D" type="Camera2D" parent="Game"]
+zoom = Vector2(0.758, 0.758)

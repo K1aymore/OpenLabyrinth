@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://csmouykt28q6s"]
+[gd_scene load_steps=4 format=3 uid="uid://csmouykt28q6s"]
 
 [ext_resource type="Texture2D" uid="uid://bi2ekcsxppa51" path="res://icon.svg" id="1_8eo5o"]
 [ext_resource type="Script" path="res://board.gd" id="1_bar03"]
+[ext_resource type="PackedScene" uid="uid://b6j2v4xas22m6" path="res://tile.tscn" id="3_b5p13"]
 
 [node name="Board" type="Node2D"]
 script = ExtResource("1_bar03")
@@ -13,10 +14,14 @@ texture = ExtResource("1_8eo5o")
 centered = false
 
 [node name="Button" type="Button" parent="."]
-offset_left = 368.0
-offset_top = -129.0
-offset_right = 415.0
-offset_bottom = -98.0
+offset_left = -571.0
+offset_top = 275.0
+offset_right = -489.0
+offset_bottom = 306.0
 text = "push"
+icon_alignment = 1
+
+[node name="startingSpareTile" parent="." instance=ExtResource("3_b5p13")]
+position = Vector2(377, -240)
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
