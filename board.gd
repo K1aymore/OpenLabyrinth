@@ -97,7 +97,6 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 		if snappedi(check, 1) == lineNum * Tile.TILESIZE:
 			lineTiles.append(tile)
 	
-	print(lineTiles)
 	return lineTiles
 
 

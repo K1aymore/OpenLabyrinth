@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=3 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board.tscn" id="1_hmrev"]
+[ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_ilq0h")
 
 [node name="Game" type="Node2D" parent="."]
 
@@ -16,4 +18,31 @@ grow_vertical = 2
 position = Vector2(-387, -380)
 
 [node name="Camera2D" type="Camera2D" parent="Game"]
-zoom = Vector2(0.758, 0.758)
+zoom = Vector2(0.542, 0.542)
+
+[node name="GUI" type="CanvasLayer" parent="."]
+process_mode = 3
+
+[node name="Control" type="Control" parent="GUI"]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 1
+
+[node name="Host" type="Button" parent="GUI/Control"]
+layout_mode = 0
+offset_left = 118.0
+offset_top = 364.0
+offset_right = 162.0
+offset_bottom = 395.0
+text = "Host"
+
+[node name="Client" type="Button" parent="GUI/Control"]
+layout_mode = 0
+offset_left = 116.0
+offset_top = 435.0
+offset_right = 169.0
+offset_bottom = 466.0
+text = "Client"
+
+[connection signal="pressed" from="GUI/Control/Host" to="." method="_on_host_pressed"]
+[connection signal="pressed" from="GUI/Control/Client" to="." method="_on_client_pressed"]

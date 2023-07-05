@@ -36,4 +36,3 @@ func push(direction : DIR):
 			position.x -= TILESIZE
 		DIR.RIGHT:
 			position.x += TILESIZE
-	print(position)
