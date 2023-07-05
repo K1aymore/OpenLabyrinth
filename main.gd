@@ -1,7 +1,10 @@
 extends Control
 
-const PORT = 4433
+@onready var network := $Network
+@onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
 
+var currentPlayerID := 1
+var currentPlayer := false
 
 func _ready():
 	# Start paused.
@@ -9,38 +12,51 @@ func _ready():
 	# You can save bandwidth by disabling server relay and peer notifications.
 	multiplayer.server_relay = false
 	$MainMenu.visible = true
-
+	$HBoxContainer/Panel/GameActions.visible = false
 
 
 
 func _on_host_pressed():
-	print("hey host")
-	# Start as server.
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_server(PORT)
-	if peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		print("Failed to start multiplayer server.")
-		return
-	multiplayer.multiplayer_peer = peer
-	start_game()
+	network.createServer()
+	$MainMenu.visible = false
+	$HBoxContainer/Panel/StartButton.visible = true
 
 
 func _on_client_pressed():
-	print("hey client")
-	# Start as client.
-	var txt : String = "localhost"
-	if txt == "":
-		print("Need a remote to connect to.")
-		return
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_client(txt, PORT)
-	if peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		print("Failed to start multiplayer client.")
-		return
-	multiplayer.multiplayer_peer = peer
-	start_game()
+	network.joinAsClient()
+	$MainMenu.visible = false
+	$HBoxContainer/Panel/StartButton.visible = false
 
 
-func start_game():
+func _on_start_button_pressed():
+	startGame.rpc()
+
+
+@rpc("call_local")
+func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
+	$HBoxContainer/Panel/StartButton.visible = false
+	$HBoxContainer/Panel/GameActions.visible = true
+	nextTurn.rpc()
+
+
+@rpc("any_peer", "call_local")
+func nextTurn():
+	currentPlayerID = network.nextPlayer()
+	currentPlayer = currentPlayerID == multiplayer.get_unique_id()
+	board.currentPlayer = currentPlayer
+	for button in $HBoxContainer/Panel/GameActions.get_children():
+		if button is Button:
+			button.disabled = !currentPlayer
+
+
+
+
+func _on_push_pressed():
+	board.push()
+	nextTurn.rpc()
+
+
+func _on_rotate_pressed():
+	board.rotateSpareTile()
