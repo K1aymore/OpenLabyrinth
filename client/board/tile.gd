@@ -53,3 +53,28 @@ enum COLOR {
 	YELLOW,
 	GREEN,
 }
+
+
+func canMoveThrough(dir : Vector2) -> bool:
+	dir = dir.rotated(deg_to_rad(rot))
+	
+	match type:
+		TYPE.STRAIGHT:
+			return moveNorth(dir) || moveSouth(dir)
+		TYPE.TSHAPE:
+			return moveNorth(dir) || moveEast(dir) || moveSouth(dir)
+		TYPE.CORNER:
+			return moveNorth(dir) || moveEast(dir)
+		_:
+			return false
+
+
+
+func moveNorth(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, -1))
+func moveSouth(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, 1))
+func moveEast(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(1, 0))
+func moveWest(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(-1, 0))

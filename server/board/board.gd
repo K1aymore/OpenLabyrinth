@@ -18,10 +18,9 @@ enum {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Icon.visible = false
-	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			addNewTile(horzNum, vertNum, randi_range(0, Tile.TYPE.size()), randi_range(0, Tile.ITEM.size()))
+			addNewTile(horzNum, vertNum, randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
 	
 	spareTile = addNewTile(3, -1, Tile.TYPE.STRAIGHT, 0)
 	spareTile.isSpare = true

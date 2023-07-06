@@ -10,6 +10,8 @@ var tiles : Array[Tile]
 var arrows : Array[PushArrow]
 var spareTile : Tile
 
+var playerPos := Vector2.ZERO
+
 enum {
 	ROW,
 	COL,
@@ -67,7 +69,7 @@ func loadTiles(tileTypes : Array, tileItems : Array):
 	if tiles.size() >= tileTypes.size():
 		return
 	
-	for i in tiles:
+	for i in tileTypes:
 		addNewTile(tileTypes[i], tileItems[i])
 
 
@@ -84,9 +86,6 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 	spareTile.isSpare = true
 
 
-func push():
-	pass
-
 
 
 @rpc("any_peer")
@@ -102,3 +101,19 @@ func arrowPressed(pos):
 @rpc("any_peer")
 func moveSpareTile(pos : Vector2):
 	pass
+
+
+func movePlayer(dir : Vector2):
+	var currTile = getTile(playerPos)
+	var nextTile = getTile(playerPos + dir)
+	if currTile != null && nextTile != null && currTile.canMoveThrough(dir) && nextTile.canMoveThrough(-dir):
+		playerPos += dir.round()
+		$PlayerSprite.position = playerPos * Tile.TILESIZE
+
+
+func getTile(pos : Vector2) -> Tile:
+	for tile in tiles:
+		if tile.pos.is_equal_approx(pos):
+			return tile
+	
+	return null

@@ -11,6 +11,13 @@ const DEFAULTPORT = 4433
 var currentPlayerID := 1
 var currentPlayer := false
 
+var turnStage := TURNSTAGE.TILE
+
+enum TURNSTAGE {
+	TILE,
+	MOVE,
+}
+
 
 func _ready():
 	# Start paused.
@@ -21,6 +28,18 @@ func _ready():
 	$MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
 
+
+
+func _process(delta):
+	if currentPlayer && turnStage == TURNSTAGE.MOVE:
+		if Input.is_action_just_pressed("up"):
+			board.movePlayer(Vector2.UP)
+		if Input.is_action_just_pressed("left"):
+			board.movePlayer(Vector2.LEFT)
+		if Input.is_action_just_pressed("right"):
+			board.movePlayer(Vector2.RIGHT)
+		if Input.is_action_just_pressed("down"):
+			board.movePlayer(Vector2.DOWN)
 
 
 func _on_client_pressed():
@@ -63,7 +82,7 @@ func startGame():
 @rpc
 func nextTurn(nextPlayer : int):
 	currentPlayerID = nextPlayer
-	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Curr Player: " + str(currentPlayerID)
+	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + str(currentPlayerID)
 	currentPlayer = currentPlayerID == multiplayer.get_unique_id()
 	board.currentPlayer = currentPlayer
 	for button in $HBoxContainer/Panel/GameActions.get_children():
@@ -71,18 +90,29 @@ func nextTurn(nextPlayer : int):
 			button.disabled = !currentPlayer
 
 
+func setupMovePlayer():
+	turnStage = TURNSTAGE.MOVE
+	for button in $HBoxContainer/Panel/GameActions.get_children():
+		if button is Button:
+			button.disabled = true
+
+
 @rpc
 func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
+
+
+func _on_push_pressed():
+	if currentPlayer:
+		push.rpc_id(1)
+		setupMovePlayer()
+
+
+func _on_rotate_pressed():
+	board.rotateSpareTile.rpc_id(1)
+
 
 @rpc
 func push():
 	pass
 
-func _on_push_pressed():
-	if currentPlayer:
-		push.rpc_id(1)
-
-
-func _on_rotate_pressed():
-	board.rotateSpareTile.rpc_id(1)

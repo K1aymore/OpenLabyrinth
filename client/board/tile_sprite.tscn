@@ -6,3 +6,4 @@
 script = ExtResource("1_0fm7x")
 
 [node name="ItemSprite" type="Sprite2D" parent="."]
+z_index = 10

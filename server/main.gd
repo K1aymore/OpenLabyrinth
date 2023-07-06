@@ -81,7 +81,7 @@ func startGame():
 func push():
 	board.push()
 	currentPlayerNum += 1
-	nextTurn.rpc(currentPlayerID())
+	#nextTurn.rpc(currentPlayerID())
 
 
 @rpc

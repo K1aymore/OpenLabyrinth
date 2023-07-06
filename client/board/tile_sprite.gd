@@ -18,6 +18,8 @@ func _ready():
 			texture = straightSprite
 		Tile.TYPE.TSHAPE:
 			texture = tshapeSprite
+		_:
+			push_error()
 	
 	match tile.item:
 		Tile.ITEM.NONE:
