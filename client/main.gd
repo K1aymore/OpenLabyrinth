@@ -85,4 +85,4 @@ func _on_push_pressed():
 
 
 func _on_rotate_pressed():
-	board.rotateSpareTile.rpc()
+	board.rotateSpareTile.rpc_id(1)

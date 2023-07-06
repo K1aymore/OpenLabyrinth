@@ -32,6 +32,7 @@ func _on_host_pressed():
 	
 	multiplayer.multiplayer_peer = peer
 	peer.peer_connected.connect(playerConnected)
+	peer.peer_disconnected.connect(playerDisconnected)
 	
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/StartButton.visible = true
@@ -40,13 +41,26 @@ func _on_host_pressed():
 
 func playerConnected(peerID : int):
 	await get_tree().create_timer(1).timeout
-	
+	remoteUpdatePlayerList()
+	board.updateRemoteTiles()
+
+
+func playerDisconnected(peerID : int):
+	await get_tree().create_timer(1).timeout
+	remoteUpdatePlayerList()
+	nextTurn.rpc(currentPlayerID())
+
+
+
+func remoteUpdatePlayerList():
 	var playerList : String = "Players:\n"
 	for player in multiplayer.get_peers():
 		playerList += str(player) + "\n"
-	
 	updatePlayerList.rpc(playerList)
-	board.updateRemoteTiles()
+
+@rpc("call_local")
+func updatePlayerList(playerList : String):
+	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
 
@@ -59,27 +73,22 @@ func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/StartButton.visible = false
-	nextTurn.rpc(nextPlayer())
+	nextTurn.rpc(currentPlayerID())
+
+
+
+@rpc("any_peer")
+func push():
+	board.push()
+	currentPlayerNum += 1
+	nextTurn.rpc(currentPlayerID())
 
 
 @rpc
 func nextTurn(nextPlayerID : int):
 	pass
 
-
-@rpc("call_local")
-func updatePlayerList(playerList : String):
-	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
-
-
-@rpc("any_peer")
-func push():
-	board.push()
-	nextTurn.rpc(nextPlayer())
-
-
-func nextPlayer() -> int:
-	currentPlayerNum += 1
+func currentPlayerID() -> int:
 	if currentPlayerNum >= multiplayer.get_peers().size():
 		currentPlayerNum = 0
 	
