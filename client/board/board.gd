@@ -3,11 +3,12 @@ extends Node2D
 var currentPlayer := false
 
 var tileScene := preload("res://board/tile.tscn")
+var tileSpriteScene := preload("res://board/tile_sprite.tscn")
 var pushArrowScene := preload("res://board/push_arrow.tscn")
 
-var tiles : Array
-var arrows : Array
-@onready var spareTile : Tile = $startingSpareTile
+var tiles : Array[Tile]
+var arrows : Array[PushArrow]
+var spareTile : Tile
 
 enum {
 	ROW,
@@ -17,17 +18,6 @@ enum {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Icon.visible = false
-	tiles.append(spareTile)
-	spareTile.position = Vector2(3 * Tile.TILESIZE, -Tile.TILESIZE)
-	spareTile.spritePos = spareTile.global_position
-	spareTile.z_index = 1
-	
-	for vertNum in range(0, 7):
-		for horzNum in range(0, 7):
-			var newTile := tileScene.instantiate()
-			newTile.position = Vector2(vertNum * Tile.TILESIZE, horzNum * Tile.TILESIZE)
-			add_child(newTile)
-			tiles.append(newTile)
 	
 	for col in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -63,20 +53,37 @@ func _ready():
 	for arrow in arrows:
 		arrow.arrowPressed.connect(arrowPressed)
 
+@rpc
+func loadTiles(newTiles : Array[Tile], newSpareTile):
+	tiles = newTiles.duplicate(true)
+	
+	for tile in tiles:
+		var newTileSprite := tileSpriteScene.instantiate()
+		newTileSprite.tile = tile
+		add_child(newTileSprite)
+	
+	spareTile = newSpareTile
+
+
+@rpc
+func updateTiles(newTiles : Array[Tile]):
+	if tiles.size() < newTiles.size():
+		tiles = newTiles
+	
+	for i in tiles.size():
+		tiles[i].position = newTiles[i].position
+		tiles[i].rotation = newTiles[i].rotation
+
+
 @rpc("any_peer")
 func push():
-	if currentPlayer:
-		push.rpc_id(1)
+	pass
 
 
 
+@rpc("any_peer")
 func rotateSpareTile():
-	rotateTile.rpc()
-
-
-@rpc("any_peer", "call_local")
-func rotateTile():
-	spareTile.rotation_degrees = snappedi(spareTile.rotation_degrees + 90, 90)
+	pass
 
 
 func arrowPressed(pos):
@@ -84,6 +91,6 @@ func arrowPressed(pos):
 		moveSpareTile.rpc(pos)
 
 
-@rpc("any_peer", "call_local")
+@rpc("any_peer")
 func moveSpareTile(pos : Vector2):
-	spareTile.position = pos
+	pass

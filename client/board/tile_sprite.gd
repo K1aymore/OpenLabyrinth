@@ -1,12 +1,11 @@
 extends Sprite2D
 
-class_name TileSprite
-
 var tile : Tile
 
 var cornerSprite := preload("res://assets/basic/corner.svg")
 var straightSprite := preload("res://assets/basic/straight.svg")
 var tshapeSprite := preload("res://assets/basic/t-shape.svg")
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

@@ -45,6 +45,7 @@ func playerConnected(peerID : int):
 		playerList += str(player) + "\n"
 	
 	updatePlayerList.rpc(playerList)
+	board.loadRemoteTiles()
 
 
 

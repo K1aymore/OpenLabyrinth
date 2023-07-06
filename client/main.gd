@@ -63,6 +63,7 @@ func startGame():
 @rpc
 func nextTurn(nextPlayer : int):
 	currentPlayerID = nextPlayer
+	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Curr Player: " + str(currentPlayerID)
 	currentPlayer = currentPlayerID == multiplayer.get_unique_id()
 	board.currentPlayer = currentPlayer
 	for button in $HBoxContainer/Panel/GameActions.get_children():
@@ -76,9 +77,9 @@ func updatePlayerList(playerList : String):
 
 
 func _on_push_pressed():
-	board.push()
-	nextTurn.rpc()
+	if currentPlayer:
+		board.push.rpc_id(1)
 
 
 func _on_rotate_pressed():
-	board.rotateSpareTile()
+	board.rotateSpareTile.rpc_id(1)

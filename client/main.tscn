@@ -95,6 +95,9 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="CurrPlayerLabel" type="Label" parent="HBoxContainer/Panel2/PlayersList"]
+layout_mode = 2
+
 [node name="PlayersLabel" type="Label" parent="HBoxContainer/Panel2/PlayersList"]
 layout_mode = 2
 text = "Players:"

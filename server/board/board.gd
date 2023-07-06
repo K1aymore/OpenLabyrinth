@@ -3,6 +3,7 @@ extends Node2D
 var currentPlayer := false
 
 var tileScene := preload("res://board/tile.tscn")
+var tileSpriteScene := preload("res://board/tile_sprite.tscn")
 var pushArrowScene := preload("res://board/push_arrow.tscn")
 
 var tiles : Array[Tile]
@@ -18,16 +19,19 @@ enum {
 func _ready():
 	$Icon.visible = false
 	tiles.append(spareTile)
-	spareTile.position = Vector2(3 * Tile.TILESIZE, -Tile.TILESIZE)
-	spareTile.spritePos = spareTile.global_position
-	spareTile.z_index = 1
+	spareTile.row = 3
+	spareTile.col = -1
 	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			var newTile := tileScene.instantiate()
-			newTile.position = Vector2(vertNum * Tile.TILESIZE, horzNum * Tile.TILESIZE)
-			add_child(newTile)
+			var newTile := Tile.new()
+			newTile.row = horzNum
+			newTile.col = vertNum
 			tiles.append(newTile)
+			var newTileSprite := tileSpriteScene.instantiate()
+			newTileSprite.tile = newTile
+			add_child(newTileSprite)
+	
 	
 	for col in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -59,18 +63,23 @@ func _ready():
 		arrow.rotation_degrees = 270
 		add_child(arrow)
 		arrows.append(arrow)
-	
-	for arrow in arrows:
-		arrow.arrowPressed.connect(arrowPressed)
 
 
-func updateTile():
+func loadRemoteTiles():
+	loadTiles.rpc(tiles.duplicate(true), spareTile.duplicate())
+
+@rpc
+func loadTiles(newTiles : Array[Tile], newSpareTile : Tile):
 	pass
 
 
+func updateRemoteTiles():
+	updateTiles.rpc(tiles, spareTile)
 
-func remoteUpdateTiles():
+@rpc
+func updateTiles(newTiles : Array[Tile], newStartingTile : Tile):
 	pass
+
 
 
 @rpc("any_peer")
@@ -122,9 +131,9 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 		var check : int
 		match rowCol:
 			ROW:
-				check = tile.position.y
+				check = tile.row
 			COL:
-				check = tile.position.x
+				check = tile.col
 		
 		if snappedi(check, 1) == lineNum * Tile.TILESIZE:
 			lineTiles.append(tile)
@@ -132,16 +141,14 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 	return lineTiles
 
 
-
+@rpc("any_peer")
 func rotateSpareTile():
 	spareTile.rotation_degrees = snappedi(spareTile.rotation_degrees + 90, 90)
+	updateRemoteTiles()
 
 
-func arrowPressed(pos):
-	if currentPlayer:
-		moveSpareTile.rpc(pos)
 
-
-@rpc("any_peer", "call_local")
+@rpc("any_peer")
 func moveSpareTile(pos : Vector2):
 	spareTile.position = pos
+	updateRemoteTiles()

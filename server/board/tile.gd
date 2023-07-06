@@ -2,7 +2,7 @@ extends Node
 
 class_name Tile
 
-const TILESIZE = 64
+const TILESIZE = 60
 
 
 var type := TYPE.STRAIGHT
@@ -11,7 +11,7 @@ var color := COLOR.NONE
 
 var row : int
 var col : int
-var rotation
+var rotation : int
 
 enum TYPE {
 	STRAIGHT,
@@ -55,10 +55,6 @@ enum COLOR {
 }
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass
-
 
 
 func push(dir : Vector2):
@@ -72,7 +68,7 @@ func canMoveThrough(dir : Vector2) -> bool:
 	match type:
 		TYPE.STRAIGHT:
 			return moveNorth(dir) || moveSouth(dir)
-		TYPE.T:
+		TYPE.TSHAPE:
 			return moveNorth(dir) || moveEast(dir) || moveSouth(dir)
 		TYPE.CORNER:
 			return moveNorth(dir) || moveEast(dir)
