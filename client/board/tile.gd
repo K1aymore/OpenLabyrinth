@@ -6,10 +6,10 @@ const TILESIZE = 60
 var type := TYPE.STRAIGHT
 var color := COLOR.NONE
 
+var isSpare := false
 
-var row : int
-var col : int
-var rotation
+var pos : Vector2
+var rot : int
 
 enum TYPE {
 	STRAIGHT,

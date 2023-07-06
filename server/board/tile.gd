@@ -8,10 +8,10 @@ const TILESIZE = 60
 var type := TYPE.STRAIGHT
 var color := COLOR.NONE
 
+var isSpare := false
 
-var row : int
-var col : int
-var rotation : int
+var pos := Vector2.ZERO
+var rot : int
 
 enum TYPE {
 	STRAIGHT,
@@ -58,12 +58,11 @@ enum COLOR {
 
 
 func push(dir : Vector2):
-	row += snappedi(dir.x, 1)
-	col += snappedi(dir.y, 1)
+	pos += dir.snapped(Vector2.ONE)
 
 
 func canMoveThrough(dir : Vector2) -> bool:
-	dir = dir.rotated(rotation)
+	dir = dir.rotated(deg_to_rad(rot))
 	
 	match type:
 		TYPE.STRAIGHT:

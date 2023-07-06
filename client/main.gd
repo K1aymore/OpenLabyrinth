@@ -3,11 +3,10 @@ extends Control
 const DEFAULTIP = "localhost"
 const DEFAULTPORT = 4433
 
-@onready var network := $Network
 @onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
 
-@onready var connectIP : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectIP
-@onready var connectPort : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectPort
+@onready var connectIP : LineEdit  = $MainMenu/HBoxContainer2/ConnectIP
+@onready var connectPort : LineEdit  = $MainMenu/HBoxContainer2/ConnectPort
 
 var currentPlayerID := 1
 var currentPlayer := false
@@ -18,6 +17,7 @@ func _ready():
 	get_tree().paused = true
 	# You can save bandwidth by disabling server relay and peer notifications.
 	multiplayer.server_relay = false
+	get_tree().get_multiplayer().allow_object_decoding = true
 	$MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
 

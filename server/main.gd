@@ -17,6 +17,7 @@ func _ready():
 	get_tree().paused = true
 	# You can save bandwidth by disabling server relay and peer notifications.
 	multiplayer.server_relay = false
+	get_tree().get_multiplayer().allow_object_decoding = true
 	$MainMenu.visible = true
 
 
@@ -45,7 +46,7 @@ func playerConnected(peerID : int):
 		playerList += str(player) + "\n"
 	
 	updatePlayerList.rpc(playerList)
-	board.loadRemoteTiles()
+	board.updateRemoteTiles()
 
 
 
@@ -58,11 +59,11 @@ func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/StartButton.visible = false
-	nextTurn.rpc()
+	nextTurn.rpc(nextPlayer())
 
 
 @rpc
-func nextTurn():
+func nextTurn(nextPlayer : int):
 	pass
 
 

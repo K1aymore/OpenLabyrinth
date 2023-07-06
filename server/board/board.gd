@@ -8,7 +8,7 @@ var pushArrowScene := preload("res://board/push_arrow.tscn")
 
 var tiles : Array[Tile]
 var arrows : Array[PushArrow]
-@onready var spareTile : Tile = $startingSpareTile
+var spareTile : Tile
 
 enum {
 	ROW,
@@ -18,137 +18,100 @@ enum {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Icon.visible = false
-	tiles.append(spareTile)
-	spareTile.row = 3
-	spareTile.col = -1
 	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			var newTile := Tile.new()
-			newTile.row = horzNum
-			newTile.col = vertNum
-			tiles.append(newTile)
-			var newTileSprite := tileSpriteScene.instantiate()
-			newTileSprite.tile = newTile
-			add_child(newTileSprite)
+			addNewTile(horzNum, vertNum)
 	
-	
-	for col in [1, 3, 5]:
-		var arrow := pushArrowScene.instantiate()
-		arrow.position.x = col * Tile.TILESIZE
-		arrow.position.y = -Tile.TILESIZE
-		arrow.rotation_degrees = 180
-		add_child(arrow)
-		arrows.append(arrow)
-	
-	for col in [1, 3, 5]:
-		var arrow := pushArrowScene.instantiate()
-		arrow.position.x = col * Tile.TILESIZE
-		arrow.position.y = Tile.TILESIZE * 7
-		add_child(arrow)
-		arrows.append(arrow)
-	
-	for row in [1, 3, 5]:
-		var arrow := pushArrowScene.instantiate()
-		arrow.position.y = row * Tile.TILESIZE
-		arrow.position.x = -Tile.TILESIZE
-		arrow.rotation_degrees = 90
-		add_child(arrow)
-		arrows.append(arrow)
-		
-	for row in [1, 3, 5]:
-		var arrow := pushArrowScene.instantiate()
-		arrow.position.y = row * Tile.TILESIZE
-		arrow.position.x = Tile.TILESIZE * 7
-		arrow.rotation_degrees = 270
-		add_child(arrow)
-		arrows.append(arrow)
+	spareTile = addNewTile(3, -1)
+	spareTile.isSpare = true
 
 
-func loadRemoteTiles():
-	loadTiles.rpc(tiles.duplicate(true), spareTile.duplicate())
 
-@rpc
-func loadTiles(newTiles : Array[Tile], newSpareTile : Tile):
-	pass
+func addNewTile( col : int, row : int) -> Tile:
+	var newTile := Tile.new()
+	newTile.pos = Vector2(col, row)
+	tiles.append(newTile)
+	var newTileSprite := tileSpriteScene.instantiate()
+	newTileSprite.tile = newTile
+	add_child(newTileSprite)
+	return newTile
 
 
 func updateRemoteTiles():
-	updateTiles.rpc(tiles, spareTile)
+	var tilePositions : Array
+	var tileRotations : Array
+	
+	for i in tiles.size():
+		tilePositions.append(tiles[i].pos)
+		tileRotations.append(tiles[i].rot)
+	
+	updateTiles.rpc(tilePositions, tileRotations, tiles.find(spareTile))
 
 @rpc
-func updateTiles(newTiles : Array[Tile], newStartingTile : Tile):
+func updateTiles(tilePositions, tileRotations, spareTileNum : int):
 	pass
 
 
 
 @rpc("any_peer")
 func push():
-	var canPush := false
-	for arrow in arrows:
-		if arrow.position.is_equal_approx(spareTile.position) && arrow.visible:
-			canPush = true
-	
-	if !canPush:
-		return
-	
-	if is_equal_approx(spareTile.position.x, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Vector2.RIGHT)
-	elif is_equal_approx(spareTile.position.x, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Vector2.LEFT)
-	elif is_equal_approx(spareTile.position.y, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Vector2.DOWN)
-	elif is_equal_approx(spareTile.position.y, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Vector2.UP)
+	print("pushing")
+	if is_equal_approx(spareTile.pos.x, -1):
+		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.RIGHT)
+	elif is_equal_approx(spareTile.pos.x, 7):
+		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.LEFT)
+	elif is_equal_approx(spareTile.pos.y, -1):
+		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.DOWN)
+	elif is_equal_approx(spareTile.pos.y, 7):
+		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.UP)
 
 
 func pushLine(lineNum : int, rowCol, dir : Vector2):
+	print("still pushing")
 	var pushedTiles : Array
 	
 	pushedTiles = getTileLine(lineNum, rowCol)
 	for tile in pushedTiles:
 		tile.push(dir)
 	
-	spareTile.z_index = 0
-	
+	spareTile.isSpare = false
 	for tile in tiles:
-		if tile.position.x > Tile.TILESIZE * 6 || tile.position.x < 0 \
-			|| tile.position.y > Tile.TILESIZE * 6 || tile.position.y < 0:
-			
+		if tile.pos.x > 6 || tile.pos.x < 0 || tile.pos.y > 6 || tile.pos.y < 0:
 			spareTile = tile
 			continue
-	spareTile.z_index = 1
-	
-	for arrow in arrows:
-		arrow.visible = !arrow.position.is_equal_approx(spareTile.position)
+	spareTile.isSpare = true
+	updateRemoteTiles()
 
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
 	var lineTiles : Array
-	
+	print(lineNum)
+	print(rowCol)
 	for tile in tiles:
 		var check : int
 		match rowCol:
 			ROW:
-				check = tile.row
+				check = tile.pos.y
 			COL:
-				check = tile.col
+				check = tile.pos.x
 		
-		if snappedi(check, 1) == lineNum * Tile.TILESIZE:
+		if check == lineNum:
 			lineTiles.append(tile)
+			print(check, lineNum)
 	
 	return lineTiles
 
 
 @rpc("any_peer")
 func rotateSpareTile():
-	spareTile.rotation_degrees = snappedi(spareTile.rotation_degrees + 90, 90)
+	spareTile.rot = snappedi(spareTile.rot + 90, 90)
 	updateRemoteTiles()
 
 
 
 @rpc("any_peer")
 func moveSpareTile(pos : Vector2):
-	spareTile.position = pos
+	spareTile.pos = pos
 	updateRemoteTiles()

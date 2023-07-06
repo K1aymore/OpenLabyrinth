@@ -23,9 +23,8 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
-	var tilePos = Vector2(tile.row, tile.col)
-	if !position.is_equal_approx(tilePos):
-		position = position.lerp(tilePos * Tile.TILESIZE, delta * 10)
+	if !position.is_equal_approx(tile.pos):
+		position = position.lerp(tile.pos * Tile.TILESIZE, delta * 10)
 		
-	if !is_equal_approx(rotation, tile.rotation):
-		rotation = lerp_angle(rotation, tile.rotation, delta * 10)
+	if !is_equal_approx(rotation_degrees, tile.rot):
+		rotation = lerp_angle(rotation, deg_to_rad(tile.rot), delta * 10)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://ymarnlwuilfo"]
+[gd_scene load_steps=2 format=3 uid="uid://dfwljbjtycwnd"]
 
 [ext_resource type="Script" path="res://board/tile_sprite.gd" id="1_0fm7x"]
 
