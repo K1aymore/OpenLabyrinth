@@ -72,6 +72,7 @@ func _ready():
 		Tile.ITEM.TREASURE:
 			itemSprite.texture = load("res://assets/basic/pieces/Treasure.svg")
 
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	if !position.is_equal_approx(tile.pos):
@@ -79,3 +80,5 @@ func _process(delta):
 		
 	if !is_equal_approx(rotation_degrees, tile.rot):
 		rotation = lerp_angle(rotation, deg_to_rad(tile.rot), delta * 10)
+	
+	itemSprite.global_rotation_degrees = 0

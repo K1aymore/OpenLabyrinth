@@ -80,3 +80,5 @@ func _process(delta):
 	
 	if !is_equal_approx(rotation_degrees, tile.rot):
 		rotation = lerp_angle(rotation, deg_to_rad(tile.rot), delta * 10)
+	
+	itemSprite.global_rotation_degrees = 0

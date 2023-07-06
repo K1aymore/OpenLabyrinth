@@ -20,18 +20,20 @@ func _ready():
 	$Icon.visible = false
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			addNewTile(horzNum, vertNum, randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
+			var newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
+			newTile.pos = Vector2(horzNum, vertNum)
+			newTile.rot = randi_range(0, 3) * 90
 	
-	spareTile = addNewTile(3, -1, Tile.TYPE.STRAIGHT, 0)
+	spareTile = addNewTile(Tile.TYPE.STRAIGHT, 0)
+	spareTile.pos = Vector2(3, -1)
 	spareTile.isSpare = true
 	
 	remoteLoadTiles()
 
 
 
-func addNewTile(col : int, row : int, type : Tile.TYPE, item : Tile.ITEM) -> Tile:
+func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	var newTile := Tile.new()
-	newTile.pos = Vector2(col, row)
 	newTile.type = type
 	newTile.item = item
 	tiles.append(newTile)
