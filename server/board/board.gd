@@ -21,16 +21,19 @@ func _ready():
 	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			addNewTile(horzNum, vertNum)
+			addNewTile(horzNum, vertNum, (horzNum + vertNum) % 3)
 	
-	spareTile = addNewTile(3, -1)
+	spareTile = addNewTile(3, -1, Tile.TYPE.STRAIGHT)
 	spareTile.isSpare = true
+	
+	remoteLoadTiles()
 
 
 
-func addNewTile( col : int, row : int) -> Tile:
+func addNewTile(col : int, row : int, type : Tile.TYPE) -> Tile:
 	var newTile := Tile.new()
 	newTile.pos = Vector2(col, row)
+	newTile.type = type
 	tiles.append(newTile)
 	var newTileSprite := tileSpriteScene.instantiate()
 	newTileSprite.tile = newTile
@@ -38,13 +41,27 @@ func addNewTile( col : int, row : int) -> Tile:
 	return newTile
 
 
+func remoteLoadTiles():
+	var tileTypes : Array
+	
+	for tile in tiles:
+		tileTypes.append(tile.type)
+	
+	loadTiles.rpc(tileTypes)
+	updateRemoteTiles()
+
+@rpc
+func loadTiles(tileTypes : Array):
+	pass
+
+
 func updateRemoteTiles():
 	var tilePositions : Array
 	var tileRotations : Array
 	
-	for i in tiles.size():
-		tilePositions.append(tiles[i].pos)
-		tileRotations.append(tiles[i].rot)
+	for tile in tiles:
+		tilePositions.append(tile.pos)
+		tileRotations.append(tile.rot)
 	
 	updateTiles.rpc(tilePositions, tileRotations, tiles.find(spareTile))
 

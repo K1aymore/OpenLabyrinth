@@ -42,7 +42,7 @@ func _on_host_pressed():
 func playerConnected(peerID : int):
 	await get_tree().create_timer(1).timeout
 	remoteUpdatePlayerList()
-	board.updateRemoteTiles()
+	board.remoteLoadTiles()
 
 
 func playerDisconnected(peerID : int):
@@ -91,5 +91,8 @@ func nextTurn(nextPlayerID : int):
 func currentPlayerID() -> int:
 	if currentPlayerNum >= multiplayer.get_peers().size():
 		currentPlayerNum = 0
+	
+	if multiplayer.get_peers().size() < 1:
+		return 1
 	
 	return multiplayer.get_peers()[currentPlayerNum]

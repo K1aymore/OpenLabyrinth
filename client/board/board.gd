@@ -19,12 +19,6 @@ enum {
 func _ready():
 	$Icon.visible = false
 	
-	for vertNum in range(0, 7):
-		for horzNum in range(0, 7):
-			addNewTile(horzNum, vertNum)
-	
-	spareTile = addNewTile(3, -1)
-	
 	
 	for col in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -57,14 +51,23 @@ func _ready():
 		arrow.arrowPressed.connect(arrowPressed)
 
 
-func addNewTile( col : int, row : int) -> Tile:
+func addNewTile(type : Tile.TYPE) -> Tile:
 	var newTile := Tile.new()
-	newTile.pos = Vector2(col, row)
+	newTile.type = type
 	tiles.append(newTile)
 	var newTileSprite := tileSpriteScene.instantiate()
 	newTileSprite.tile = newTile
 	add_child(newTileSprite)
 	return newTile
+
+
+@rpc
+func loadTiles(tileTypes : Array):
+	if tiles.size() >= tileTypes.size():
+		return
+	
+	for type in tileTypes:
+		addNewTile(type)
 
 
 @rpc
@@ -74,7 +77,8 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 		tile.pos = tilePositions[i]
 		tile.rot = snappedi(tileRotations[i], 90)
 	
-	spareTile.isSpare = false
+	if spareTile != null:
+		spareTile.isSpare = false
 	spareTile = tiles[spareTileNum]
 	spareTile.isSpare = true
 
