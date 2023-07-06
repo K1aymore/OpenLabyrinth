@@ -9,7 +9,6 @@ const DEFAULTPORT = 4433
 
 @onready var hostPort : LineEdit = $MainMenu/HBoxContainer/HostPort
 
-
 var currentPlayerNum := 0
 
 

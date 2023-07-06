@@ -63,63 +63,10 @@ func _ready():
 	for arrow in arrows:
 		arrow.arrowPressed.connect(arrowPressed)
 
-
+@rpc("any_peer")
 func push():
-	var canPush := false
-	for arrow in arrows:
-		if arrow.position.is_equal_approx(spareTile.position) && arrow.visible:
-			canPush = true
-	
-	if !canPush:
-		return
-	
-	if is_equal_approx(spareTile.position.x, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.RIGHT)
-	elif is_equal_approx(spareTile.position.x, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.LEFT)
-	elif is_equal_approx(spareTile.position.y, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.DOWN)
-	elif is_equal_approx(spareTile.position.y, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.UP)
-
-
-@rpc("any_peer", "call_local")
-func pushLine(lineNum : int, rowCol, dir : Tile.DIR):	
-	var pushedTiles : Array
-	
-	pushedTiles = getTileLine(lineNum, rowCol)
-	for tile in pushedTiles:
-		tile.push(dir)
-	
-	spareTile.z_index = 0
-	
-	for tile in tiles:
-		if tile.position.x > Tile.TILESIZE * 6 || tile.position.x < 0 \
-			|| tile.position.y > Tile.TILESIZE * 6 || tile.position.y < 0:
-			
-			spareTile = tile
-			continue
-	spareTile.z_index = 1
-	
-	for arrow in arrows:
-		arrow.visible = !arrow.position.is_equal_approx(spareTile.position)
-
-
-func getTileLine(lineNum : int, rowCol) -> Array:
-	var lineTiles : Array
-	
-	for tile in tiles:
-		var check : int
-		match rowCol:
-			ROW:
-				check = tile.position.y
-			COL:
-				check = tile.position.x
-		
-		if snappedi(check, 1) == lineNum * Tile.TILESIZE:
-			lineTiles.append(tile)
-	
-	return lineTiles
+	if currentPlayer:
+		push.rpc_id(1)
 
 
 

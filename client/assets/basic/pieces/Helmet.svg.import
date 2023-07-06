@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://xhbv8vunuutb"
-path="res://.godot/imported/HolyGrail.svg-40e23298b1ff1cc530286da2dda430ae.ctex"
+uid="uid://76pgjwiahs53"
+path="res://.godot/imported/Helmet.svg-6770f441126ae83f36160fad62b86f4d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/basic/pieces/HolyGrail.svg"
-dest_files=["res://.godot/imported/HolyGrail.svg-40e23298b1ff1cc530286da2dda430ae.ctex"]
+source_file="res://assets/basic/pieces/Helmet.svg"
+dest_files=["res://.godot/imported/Helmet.svg-6770f441126ae83f36160fad62b86f4d.ctex"]
 
 [params]
 

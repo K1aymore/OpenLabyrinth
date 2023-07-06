@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://wosql8prk52d"
-path="res://.godot/imported/KnightHelmet.svg-bd0513655969226bdf966fa0463804ca.ctex"
+uid="uid://c4npk2vlx5eqg"
+path="res://.godot/imported/Grail.svg-13d12fc180ddbb0265b11ff14624d1b4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/basic/pieces/KnightHelmet.svg"
-dest_files=["res://.godot/imported/KnightHelmet.svg-bd0513655969226bdf966fa0463804ca.ctex"]
+source_file="res://assets/basic/pieces/Grail.svg"
+dest_files=["res://.godot/imported/Grail.svg-13d12fc180ddbb0265b11ff14624d1b4.ctex"]
 
 [params]
 

@@ -5,8 +5,8 @@ var currentPlayer := false
 var tileScene := preload("res://board/tile.tscn")
 var pushArrowScene := preload("res://board/push_arrow.tscn")
 
-var tiles : Array
-var arrows : Array
+var tiles : Array[Tile]
+var arrows : Array[PushArrow]
 @onready var spareTile : Tile = $startingSpareTile
 
 enum {
@@ -64,6 +64,16 @@ func _ready():
 		arrow.arrowPressed.connect(arrowPressed)
 
 
+func updateTile():
+	pass
+
+
+
+func remoteUpdateTiles():
+	pass
+
+
+@rpc("any_peer")
 func push():
 	var canPush := false
 	for arrow in arrows:
@@ -74,17 +84,16 @@ func push():
 		return
 	
 	if is_equal_approx(spareTile.position.x, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.RIGHT)
+		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Vector2.RIGHT)
 	elif is_equal_approx(spareTile.position.x, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Tile.DIR.LEFT)
+		pushLine.rpc(snappedi(spareTile.position.y, 1) / Tile.TILESIZE, ROW, Vector2.LEFT)
 	elif is_equal_approx(spareTile.position.y, -Tile.TILESIZE):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.DOWN)
+		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Vector2.DOWN)
 	elif is_equal_approx(spareTile.position.y, Tile.TILESIZE * 7):
-		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Tile.DIR.UP)
+		pushLine.rpc(snappedi(spareTile.position.x, 1) / Tile.TILESIZE, COL, Vector2.UP)
 
 
-@rpc("any_peer", "call_local")
-func pushLine(lineNum : int, rowCol, dir : Tile.DIR):	
+func pushLine(lineNum : int, rowCol, dir : Vector2):
 	var pushedTiles : Array
 	
 	pushedTiles = getTileLine(lineNum, rowCol)
@@ -103,6 +112,7 @@ func pushLine(lineNum : int, rowCol, dir : Tile.DIR):
 	
 	for arrow in arrows:
 		arrow.visible = !arrow.position.is_equal_approx(spareTile.position)
+
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
@@ -124,11 +134,6 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 
 
 func rotateSpareTile():
-	rotateTile.rpc()
-
-
-@rpc("any_peer", "call_local")
-func rotateTile():
 	spareTile.rotation_degrees = snappedi(spareTile.rotation_degrees + 90, 90)
 
 

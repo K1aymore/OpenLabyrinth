@@ -1,44 +1,91 @@
-extends Node2D
+extends Node
 
 class_name Tile
 
-var spritePos : Vector2
-var spriteRot : float
-
 const TILESIZE = 64
 
-enum DIR {
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
+
+var type := TYPE.STRAIGHT
+var color := COLOR.NONE
+
+
+var row : int
+var col : int
+var rotation
+
+enum TYPE {
+	STRAIGHT,
+	TSHAPE,
+	CORNER,
 }
+
+enum ITEMS {
+	BAT,
+	BOMB,
+	BOOK,
+	BUG,
+	CANDLES,
+	CANNON,
+	CAT,
+	COINS,
+	CROWN,
+	DAGGER,
+	DIAMOND,
+	DINOSAUR,
+	GHOST,
+	GRAIL,
+	HELMET,
+	KEYS,
+	LIZARD,
+	MERMAID,
+	MOUSE,
+	OWL,
+	PONY,
+	POTION,
+	RING,
+	TREASURE,
+}
+
+enum COLOR {
+	NONE,
+	BLUE,
+	RED,
+	YELLOW,
+	GREEN,
+}
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	spritePos = global_position
-	spriteRot = global_rotation
-	$Sprite2D.global_position = global_position
+	pass
 
 
 
-func _process(delta):
-	if !global_position.is_equal_approx(spritePos):
-		spritePos = spritePos.lerp(global_position, delta * 10)
-		$Sprite2D.global_position = spritePos
-	if !is_equal_approx(global_rotation, spriteRot):
-		spriteRot = lerp_angle(spriteRot, global_rotation, delta * 10)
-		$Sprite2D.global_rotation = spriteRot
+func push(dir : Vector2):
+	row += snappedi(dir.x, 1)
+	col += snappedi(dir.y, 1)
 
 
-func push(direction : DIR):
-	match direction:
-		DIR.UP:
-			position.y -= TILESIZE
-		DIR.DOWN:
-			position.y += TILESIZE
-		DIR.LEFT:
-			position.x -= TILESIZE
-		DIR.RIGHT:
-			position.x += TILESIZE
+func canMoveThrough(dir : Vector2) -> bool:
+	dir = dir.rotated(rotation)
+	
+	match type:
+		TYPE.STRAIGHT:
+			return moveNorth(dir) || moveSouth(dir)
+		TYPE.T:
+			return moveNorth(dir) || moveEast(dir) || moveSouth(dir)
+		TYPE.CORNER:
+			return moveNorth(dir) || moveEast(dir)
+		_:
+			return false
 
+
+
+func moveNorth(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, -1))
+func moveSouth(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, 1))
+func moveEast(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(1, 0))
+func moveWest(dir : Vector2):
+	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(-1, 0))
