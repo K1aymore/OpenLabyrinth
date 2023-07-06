@@ -51,9 +51,10 @@ func _ready():
 		arrow.arrowPressed.connect(arrowPressed)
 
 
-func addNewTile(type : Tile.TYPE) -> Tile:
+func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	var newTile := Tile.new()
 	newTile.type = type
+	newTile.item = item
 	tiles.append(newTile)
 	var newTileSprite := tileSpriteScene.instantiate()
 	newTileSprite.tile = newTile
@@ -62,12 +63,12 @@ func addNewTile(type : Tile.TYPE) -> Tile:
 
 
 @rpc
-func loadTiles(tileTypes : Array):
+func loadTiles(tileTypes : Array, tileItems : Array):
 	if tiles.size() >= tileTypes.size():
 		return
 	
-	for type in tileTypes:
-		addNewTile(type)
+	for i in tiles:
+		addNewTile(tileTypes[i], tileItems[i])
 
 
 @rpc

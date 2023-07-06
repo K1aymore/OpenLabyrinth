@@ -21,19 +21,20 @@ func _ready():
 	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			addNewTile(horzNum, vertNum, (horzNum + vertNum) % 3)
+			addNewTile(horzNum, vertNum, randi_range(0, Tile.TYPE.size()), randi_range(0, Tile.ITEM.size()))
 	
-	spareTile = addNewTile(3, -1, Tile.TYPE.STRAIGHT)
+	spareTile = addNewTile(3, -1, Tile.TYPE.STRAIGHT, 0)
 	spareTile.isSpare = true
 	
 	remoteLoadTiles()
 
 
 
-func addNewTile(col : int, row : int, type : Tile.TYPE) -> Tile:
+func addNewTile(col : int, row : int, type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	var newTile := Tile.new()
 	newTile.pos = Vector2(col, row)
 	newTile.type = type
+	newTile.item = item
 	tiles.append(newTile)
 	var newTileSprite := tileSpriteScene.instantiate()
 	newTileSprite.tile = newTile
@@ -43,15 +44,17 @@ func addNewTile(col : int, row : int, type : Tile.TYPE) -> Tile:
 
 func remoteLoadTiles():
 	var tileTypes : Array
+	var tileItems : Array
 	
 	for tile in tiles:
 		tileTypes.append(tile.type)
+		tileItems.append(tile.item)
 	
-	loadTiles.rpc(tileTypes)
+	loadTiles.rpc(tileTypes, tileItems)
 	updateRemoteTiles()
 
 @rpc
-func loadTiles(tileTypes : Array):
+func loadTiles(tileTypes : Array, tileItems : Array):
 	pass
 
 

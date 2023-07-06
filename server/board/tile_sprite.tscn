@@ -6,3 +6,5 @@
 [node name="TileSprite" type="Sprite2D"]
 texture = ExtResource("1_n8h5q")
 script = ExtResource("1_0fm7x")
+
+[node name="ItemSprite" type="Sprite2D" parent="."]

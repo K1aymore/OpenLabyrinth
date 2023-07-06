@@ -5,6 +5,7 @@ const TILESIZE = 60
 
 var type := TYPE.STRAIGHT
 var color := COLOR.NONE
+var item := ITEM.NONE
 
 var isSpare := false
 
@@ -17,7 +18,8 @@ enum TYPE {
 	CORNER,
 }
 
-enum ITEMS {
+enum ITEM {
+	NONE,
 	BAT,
 	BOMB,
 	BOOK,
