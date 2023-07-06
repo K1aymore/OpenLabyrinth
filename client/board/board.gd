@@ -69,7 +69,6 @@ func addNewTile( col : int, row : int) -> Tile:
 
 @rpc
 func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
-	
 	for i in tiles.size():
 		var tile := tiles[i]
 		tile.pos = tilePositions[i]
@@ -80,7 +79,6 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 	spareTile.isSpare = true
 
 
-@rpc("any_peer")
 func push():
 	pass
 
@@ -93,7 +91,7 @@ func rotateSpareTile():
 
 func arrowPressed(pos):
 	if currentPlayer:
-		moveSpareTile.rpc(pos)
+		moveSpareTile.rpc_id(1, pos)
 
 
 @rpc("any_peer")

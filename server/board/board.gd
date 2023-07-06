@@ -49,14 +49,11 @@ func updateRemoteTiles():
 	updateTiles.rpc(tilePositions, tileRotations, tiles.find(spareTile))
 
 @rpc
-func updateTiles(tilePositions, tileRotations, spareTileNum : int):
+func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
 	pass
 
 
-
-@rpc("any_peer")
 func push():
-	print("pushing")
 	if is_equal_approx(spareTile.pos.x, -1):
 		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.RIGHT)
 	elif is_equal_approx(spareTile.pos.x, 7):
@@ -68,7 +65,6 @@ func push():
 
 
 func pushLine(lineNum : int, rowCol, dir : Vector2):
-	print("still pushing")
 	var pushedTiles : Array
 	
 	pushedTiles = getTileLine(lineNum, rowCol)
@@ -87,19 +83,16 @@ func pushLine(lineNum : int, rowCol, dir : Vector2):
 
 func getTileLine(lineNum : int, rowCol) -> Array:
 	var lineTiles : Array
-	print(lineNum)
-	print(rowCol)
 	for tile in tiles:
 		var check : int
 		match rowCol:
 			ROW:
-				check = tile.pos.y
+				check = snappedi(tile.pos.y, 1)
 			COL:
-				check = tile.pos.x
+				check = snappedi(tile.pos.x, 1)
 		
 		if check == lineNum:
 			lineTiles.append(tile)
-			print(check, lineNum)
 	
 	return lineTiles
 

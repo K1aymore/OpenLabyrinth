@@ -75,11 +75,14 @@ func nextTurn(nextPlayer : int):
 func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
+@rpc
+func push():
+	pass
 
 func _on_push_pressed():
 	if currentPlayer:
-		board.push.rpc_id(1)
+		push.rpc_id(1)
 
 
 func _on_rotate_pressed():
-	board.rotateSpareTile.rpc_id(1)
+	board.rotateSpareTile.rpc()

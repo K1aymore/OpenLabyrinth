@@ -24,6 +24,6 @@ func _ready():
 func _process(delta):
 	if !position.is_equal_approx(tile.pos * Tile.TILESIZE):
 		position = position.lerp(tile.pos * Tile.TILESIZE, delta * 10)
-		
+	
 	if !is_equal_approx(rotation_degrees, tile.rot):
 		rotation = lerp_angle(rotation, deg_to_rad(tile.rot), delta * 10)

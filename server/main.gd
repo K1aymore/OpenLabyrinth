@@ -63,7 +63,7 @@ func startGame():
 
 
 @rpc
-func nextTurn(nextPlayer : int):
+func nextTurn(nextPlayerID : int):
 	pass
 
 
@@ -72,13 +72,10 @@ func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
-func _on_push_pressed():
+@rpc("any_peer")
+func push():
 	board.push()
 	nextTurn.rpc(nextPlayer())
-
-
-func _on_rotate_pressed():
-	board.rotateSpareTile()
 
 
 func nextPlayer() -> int:
@@ -86,6 +83,4 @@ func nextPlayer() -> int:
 	if currentPlayerNum >= multiplayer.get_peers().size():
 		currentPlayerNum = 0
 	
-	print(currentPlayerNum)
-	print(multiplayer.get_peers())
 	return multiplayer.get_peers()[currentPlayerNum]
