@@ -53,6 +53,7 @@ func _ready():
 		arrow.arrowPressed.connect(arrowPressed)
 
 
+
 func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	var newTile := Tile.new()
 	newTile.type = type
@@ -65,7 +66,7 @@ func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 
 
 @rpc
-func loadTiles(tileTypes : Array, tileItems : Array):
+func clientLoadTiles(tileTypes : Array, tileItems : Array):
 	if tiles.size() >= tileTypes.size():
 		return
 	
@@ -74,7 +75,7 @@ func loadTiles(tileTypes : Array, tileItems : Array):
 
 
 @rpc
-func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
+func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
 	for i in tiles.size():
 		var tile := tiles[i]
 		tile.pos = tilePositions[i]
@@ -88,19 +89,82 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 
 
 
-@rpc("any_peer")
-func rotateSpareTile():
+func updateServerTiles():
+	var tilePositions : Array
+	var tileRotations : Array
+	
+	for tile in tiles:
+		tilePositions.append(tile.pos)
+		tileRotations.append(tile.rot)
+	
+	serverUpdateTiles.rpc_id(1, tilePositions, tileRotations, tiles.find(spareTile))
+
+@rpc
+func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
 	pass
+
+
+
+
+func push():
+	if is_equal_approx(spareTile.pos.x, -1):
+		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.RIGHT)
+	elif is_equal_approx(spareTile.pos.x, 7):
+		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.LEFT)
+	elif is_equal_approx(spareTile.pos.y, -1):
+		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.DOWN)
+	elif is_equal_approx(spareTile.pos.y, 7):
+		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.UP)
+
+
+func pushLine(lineNum : int, rowCol, dir : Vector2):
+	var pushedTiles : Array
+	
+	pushedTiles = getTileLine(lineNum, rowCol)
+	for tile in pushedTiles:
+		tile.push(dir)
+	
+	spareTile.isSpare = false
+	for tile in tiles:
+		if tile.pos.x > 6 || tile.pos.x < 0 || tile.pos.y > 6 || tile.pos.y < 0:
+			spareTile = tile
+			continue
+	spareTile.isSpare = true
+	updateServerTiles()
+
+
+func getTileLine(lineNum : int, rowCol) -> Array:
+	var lineTiles : Array
+	for tile in tiles:
+		var check : int
+		match rowCol:
+			ROW:
+				check = snappedi(tile.pos.y, 1)
+			COL:
+				check = snappedi(tile.pos.x, 1)
+		
+		if check == lineNum:
+			lineTiles.append(tile)
+	
+	return lineTiles
+
+
 
 
 func arrowPressed(pos):
 	if currentPlayer:
-		moveSpareTile.rpc_id(1, pos)
+		moveSpareTile(pos)
 
 
-@rpc("any_peer")
 func moveSpareTile(pos : Vector2):
-	pass
+	spareTile.pos = pos
+	updateServerTiles()
+
+
+func rotateSpareTile():
+	spareTile.rot = snappedi(spareTile.rot + 90, 90)
+	updateServerTiles()
+
 
 
 func movePlayer(dir : Vector2):

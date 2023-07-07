@@ -5,8 +5,8 @@ const DEFAULTPORT = 4433
 
 @onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
 
-@onready var connectIP : LineEdit  = $MainMenu/HBoxContainer2/ConnectIP
-@onready var connectPort : LineEdit  = $MainMenu/HBoxContainer2/ConnectPort
+@onready var connectIP : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectIP
+@onready var connectPort : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectPort
 
 var currentPlayerID := 1
 var currentPlayer := false
@@ -42,6 +42,10 @@ func _process(delta):
 			board.movePlayer(Vector2.DOWN)
 
 
+func _on_start_local_pressed():
+	closeMainMenu()
+
+
 func _on_client_pressed():
 	var ip = connectIP.text if connectIP.text != "" else DEFAULTIP
 	var port = connectPort.text.to_int() if connectPort.text != "" else DEFAULTPORT
@@ -71,7 +75,7 @@ func closeMainMenu():
 
 
 
-@rpc
+@rpc("call_local")
 func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
@@ -97,22 +101,19 @@ func setupMovePlayer():
 			button.disabled = true
 
 
-@rpc
+@rpc("call_local")
 func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
 func _on_push_pressed():
 	if currentPlayer:
-		push.rpc_id(1)
+		board.push()
 		setupMovePlayer()
 
 
 func _on_rotate_pressed():
-	board.rotateSpareTile.rpc_id(1)
+	board.rotateSpareTile()
 
 
-@rpc
-func push():
-	pass
 

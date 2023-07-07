@@ -55,6 +55,10 @@ enum COLOR {
 }
 
 
+func push(dir : Vector2):
+	pos += dir.round()
+
+
 func canMoveThrough(dir : Vector2) -> bool:
 	dir = dir.rotated(deg_to_rad(rot))
 	
@@ -71,10 +75,10 @@ func canMoveThrough(dir : Vector2) -> bool:
 
 
 func moveNorth(dir : Vector2):
-	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, -1))
+	return dir.round().is_equal_approx(Vector2(0, -1))
 func moveSouth(dir : Vector2):
-	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(0, 1))
+	return dir.round().is_equal_approx(Vector2(0, 1))
 func moveEast(dir : Vector2):
-	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(1, 0))
+	return dir.round().is_equal_approx(Vector2(1, 0))
 func moveWest(dir : Vector2):
-	return dir.snapped(Vector2.ONE).is_equal_approx(Vector2(-1, 0))
+	return dir.round().is_equal_approx(Vector2(-1, 0))

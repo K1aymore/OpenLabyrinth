@@ -58,6 +58,7 @@ func remoteUpdatePlayerList():
 		playerList += str(player) + "\n"
 	updatePlayerList.rpc(playerList)
 
+
 @rpc("call_local")
 func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
@@ -75,13 +76,6 @@ func startGame():
 	$HBoxContainer/Panel/StartButton.visible = false
 	nextTurn.rpc(currentPlayerID())
 
-
-
-@rpc("any_peer")
-func push():
-	board.push()
-	currentPlayerNum += 1
-	#nextTurn.rpc(currentPlayerID())
 
 
 @rpc

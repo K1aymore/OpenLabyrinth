@@ -13,6 +13,7 @@ var tshapeSprite := preload("res://assets/basic/t-shape.svg")
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	scale = Vector2.ONE * 0.2
+	position = Vector2(3, 3) * Tile.TILESIZE
 	
 	match tile.type:
 		Tile.TYPE.CORNER:
