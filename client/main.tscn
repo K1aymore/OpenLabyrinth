@@ -110,7 +110,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu"]
+[node name="LocalSetup" type="VBoxContainer" parent="MainMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StartGame" type="Button" parent="MainMenu/LocalSetup"]
+layout_mode = 2
+text = "Start Game"
+
+[node name="MainMenu" type="VBoxContainer" parent="MainMenu"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -124,28 +142,28 @@ offset_bottom = 21.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 2
 
-[node name="StartLocal" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
+[node name="StartLocal" type="Button" parent="MainMenu/MainMenu/HBoxContainer"]
 layout_mode = 2
 text = "Start Local Game"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="Client" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer2"]
+[node name="Client" type="Button" parent="MainMenu/MainMenu/HBoxContainer2"]
 layout_mode = 2
 text = "Connect"
 
-[node name="ConnectIP" type="LineEdit" parent="MainMenu/VBoxContainer/HBoxContainer2"]
+[node name="ConnectIP" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer2"]
 layout_mode = 2
 placeholder_text = "IP"
 expand_to_text_length = true
 caret_blink = true
 
-[node name="ConnectPort" type="LineEdit" parent="MainMenu/VBoxContainer/HBoxContainer2"]
+[node name="ConnectPort" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer2"]
 layout_mode = 2
 placeholder_text = "Port"
 max_length = 5
@@ -154,5 +172,6 @@ caret_blink = true
 
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Push" to="." method="_on_push_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Rotate" to="." method="_on_rotate_pressed"]
-[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
-[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer2/Client" to="." method="_on_client_pressed"]
+[connection signal="pressed" from="MainMenu/LocalSetup/StartGame" to="." method="_on_start_game_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/Client" to="." method="_on_client_pressed"]

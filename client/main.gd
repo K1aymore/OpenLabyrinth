@@ -9,7 +9,7 @@ const DEFAULTPORT = 4433
 @onready var connectPort : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectPort
 
 var currentPlayerID := 1
-var currentPlayer := false
+var isCurrentPlayer := false
 
 var turnStage := TURNSTAGE.TILE
 
@@ -27,11 +27,12 @@ func _ready():
 	get_tree().get_multiplayer().allow_object_decoding = true
 	$MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
+	$MainMenu/LocalSetup.visible = true
 
 
 
 func _process(delta):
-	if currentPlayer && turnStage == TURNSTAGE.MOVE:
+	if isCurrentPlayer && turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
 			board.movePlayer(Vector2.UP)
 		if Input.is_action_just_pressed("left"):
@@ -43,7 +44,14 @@ func _process(delta):
 
 
 func _on_start_local_pressed():
+	$MainMenu/MainMenu.visible = false
+	$MainMenu/LocalSetup.visible = true
+
+
+func _on_start_game_pressed():
+	board.generateMap()
 	closeMainMenu()
+	startGame()
 
 
 func _on_client_pressed():
@@ -75,23 +83,22 @@ func closeMainMenu():
 
 
 
-@rpc("call_local")
 func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/GameActions.visible = true
+	isCurrentPlayer = true
+	board.isCurrentPlayer = true
 
 
-
-@rpc
 func nextTurn(nextPlayer : int):
 	currentPlayerID = nextPlayer
 	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + str(currentPlayerID)
-	currentPlayer = currentPlayerID == multiplayer.get_unique_id()
-	board.currentPlayer = currentPlayer
+	isCurrentPlayer = currentPlayerID == multiplayer.get_unique_id()
+	board.currentPlayer = isCurrentPlayer
 	for button in $HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
-			button.disabled = !currentPlayer
+			button.disabled = !isCurrentPlayer
 
 
 func setupMovePlayer():
@@ -101,19 +108,20 @@ func setupMovePlayer():
 			button.disabled = true
 
 
-@rpc("call_local")
 func updatePlayerList(playerList : String):
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
 
 
 func _on_push_pressed():
-	if currentPlayer:
+	if isCurrentPlayer:
 		board.push()
 		setupMovePlayer()
 
 
 func _on_rotate_pressed():
 	board.rotateSpareTile()
+
+
 
 
 
