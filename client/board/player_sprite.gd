@@ -9,7 +9,6 @@ var player : Player
 func _ready():
 	position = Vector2(3, 3) * Tile.TILESIZE
 	scale = Vector2(0.3, 0.3)
-	z_index = 20
 
 func _process(delta):
 	if !position.is_equal_approx(player.tile.pos * Tile.TILESIZE):

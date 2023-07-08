@@ -158,6 +158,20 @@ func push():
 			spareTile = tile
 			continue
 	spareTile.isSpare = true
+	
+	for player in main.players:
+		if player.tile.isSpare:
+			var newTilePos := player.tile.pos
+			if player.tile.pos.x > 6:
+				newTilePos.x = 0
+			elif player.tile.pos.x < 0:
+				newTilePos.x = 6
+			elif player.tile.pos.y > 6:
+				newTilePos.y = 0
+			else:
+				newTilePos.y = 6
+			player.tile = getTile(newTilePos)
+	
 	updateServerTiles()
 
 
