@@ -56,9 +56,29 @@ func _ready():
 func generateMap():
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
-			var newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
+			var newTile : Tile
+			match Vector2(horzNum, vertNum):
+				Vector2(0, 0):
+					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+					newTile.color = Tile.COLOR.BLUE
+					newTile.rot = 90
+				Vector2(6, 0):
+					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+					newTile.color = Tile.COLOR.YELLOW
+					newTile.rot = 180
+				Vector2(0, 6):
+					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+					newTile.color = Tile.COLOR.GREEN
+					newTile.rot = 0
+				Vector2(6, 6):
+					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+					newTile.color = Tile.COLOR.RED
+					newTile.rot = 270
+				_:
+					newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
+					newTile.rot = randi_range(0, 3) * 90
+			
 			newTile.pos = Vector2(horzNum, vertNum)
-			newTile.rot = randi_range(0, 3) * 90
 	
 	spareTile = addNewTile(Tile.TYPE.STRAIGHT, 0)
 	spareTile.pos = Vector2(3, -1)
@@ -101,6 +121,9 @@ func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNu
 
 
 func updateServerTiles():
+	if is_multiplayer_authority():
+		return
+	
 	var tilePositions : Array
 	var tileRotations : Array
 	
@@ -118,22 +141,7 @@ func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
 
 
 func push():
-	if is_equal_approx(spareTile.pos.x, -1):
-		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.RIGHT)
-	elif is_equal_approx(spareTile.pos.x, 7):
-		pushLine(snappedi(spareTile.pos.y, 1), ROW, Vector2.LEFT)
-	elif is_equal_approx(spareTile.pos.y, -1):
-		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.DOWN)
-	elif is_equal_approx(spareTile.pos.y, 7):
-		pushLine(snappedi(spareTile.pos.x, 1), COL, Vector2.UP)
-
-
-func pushLine(lineNum : int, rowCol, dir : Vector2):
-	var pushedTiles : Array
-	
-	pushedTiles = getTileLine(lineNum, rowCol)
-	for tile in pushedTiles:
-		tile.push(dir)
+	pushLine()
 	
 	spareTile.isSpare = false
 	for tile in tiles:
@@ -142,6 +150,27 @@ func pushLine(lineNum : int, rowCol, dir : Vector2):
 			continue
 	spareTile.isSpare = true
 	updateServerTiles()
+
+
+func pushLine():
+	var pushedTiles : Array
+	var dir : Vector2
+	
+	if is_equal_approx(spareTile.pos.x, -1):
+		pushedTiles = getTileLine(spareTile.pos.y, ROW)
+		dir = Vector2.RIGHT
+	elif is_equal_approx(spareTile.pos.x, 7):
+		pushedTiles = getTileLine(spareTile.pos.y, ROW)
+		dir = Vector2.LEFT
+	elif is_equal_approx(spareTile.pos.y, -1):
+		pushedTiles = getTileLine(spareTile.pos.x, COL)
+		dir = Vector2.DOWN
+	elif is_equal_approx(spareTile.pos.y, 7):
+		pushedTiles = getTileLine(spareTile.pos.x, COL)
+		dir = Vector2.UP
+	
+	for tile in pushedTiles:
+		tile.push(dir)
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:

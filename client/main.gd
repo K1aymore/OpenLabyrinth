@@ -5,10 +5,14 @@ const DEFAULTPORT = 4433
 
 @onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
 
-@onready var connectIP : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectIP
-@onready var connectPort : LineEdit  = $MainMenu/VBoxContainer/HBoxContainer2/ConnectPort
+@onready var connectIP : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectIP
+@onready var connectPort : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectPort
 
-var currentPlayerID := 1
+const MAX_PLAYERS = 4
+
+var players : Array[String]
+var myPlayers : Array[String]
+var currentPlayer : String
 var isCurrentPlayer := false
 
 var turnStage := TURNSTAGE.TILE
@@ -26,8 +30,9 @@ func _ready():
 	multiplayer.server_relay = false
 	get_tree().get_multiplayer().allow_object_decoding = true
 	$MainMenu.visible = true
+	$MainMenu/MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
-	$MainMenu/LocalSetup.visible = true
+	$MainMenu/LocalSetup.visible = false
 
 
 
@@ -48,7 +53,20 @@ func _on_start_local_pressed():
 	$MainMenu/LocalSetup.visible = true
 
 
+func _on_add_player_pressed():
+	if players.size() >= MAX_PLAYERS:
+		return
+	
+	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
+	var name := text if text != "" else str(randi())
+	players.append(name)
+	myPlayers.append(name)
+	$MainMenu/PlayerList.text = getPlayerList()
+	$MainMenu/LocalSetup/HBoxContainer/PlayerName.text = ""
+
+
 func _on_start_game_pressed():
+	currentPlayer = players[0]
 	board.generateMap()
 	closeMainMenu()
 	startGame()
@@ -89,13 +107,16 @@ func startGame():
 	$HBoxContainer/Panel/GameActions.visible = true
 	isCurrentPlayer = true
 	board.isCurrentPlayer = true
+	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = getPlayerList()
 
 
-func nextTurn(nextPlayer : int):
-	currentPlayerID = nextPlayer
-	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + str(currentPlayerID)
-	isCurrentPlayer = currentPlayerID == multiplayer.get_unique_id()
-	board.currentPlayer = isCurrentPlayer
+func nextTurn():
+	var nextPlayerNum : int = players.find(currentPlayer) + 1
+	currentPlayer = players[nextPlayerNum]
+	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer
+	isCurrentPlayer = myPlayers.has(currentPlayer)
+	board.isCurrentPlayer = isCurrentPlayer
+	
 	for button in $HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
 			button.disabled = !isCurrentPlayer
@@ -106,10 +127,15 @@ func setupMovePlayer():
 	for button in $HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
 			button.disabled = true
+	$HBoxContainer/Panel/GameActions/EndMove.disabled = false
 
 
-func updatePlayerList(playerList : String):
-	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = playerList
+func getPlayerList() -> String:
+	var playerNames := "Current Players:"
+	for s in players:
+		playerNames += "\n" + s
+	
+	return playerNames
 
 
 func _on_push_pressed():
@@ -122,6 +148,6 @@ func _on_rotate_pressed():
 	board.rotateSpareTile()
 
 
-
-
-
+func _on_end_move_pressed():
+	if turnStage == TURNSTAGE.MOVE:
+		nextTurn()

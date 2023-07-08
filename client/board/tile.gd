@@ -60,8 +60,7 @@ func push(dir : Vector2):
 
 
 func canMoveThrough(dir : Vector2) -> bool:
-	dir = dir.rotated(deg_to_rad(rot))
-	
+	dir = dir.rotated(deg_to_rad(-rot))
 	match type:
 		TYPE.STRAIGHT:
 			return moveNorth(dir) || moveSouth(dir)

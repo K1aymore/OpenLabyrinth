@@ -50,6 +50,10 @@ text = "Push"
 layout_mode = 2
 text = "Rotate"
 
+[node name="EndMove" type="Button" parent="HBoxContainer/Panel/GameActions"]
+layout_mode = 2
+text = "End Move"
+
 [node name="VSeparator" type="VSeparator" parent="HBoxContainer"]
 modulate = Color(1, 1, 1, 0)
 layout_mode = 2
@@ -124,11 +128,35 @@ offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/LocalSetup"]
+layout_mode = 2
+
+[node name="AddPlayer" type="Button" parent="MainMenu/LocalSetup/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Add Player"
+
+[node name="PlayerName" type="LineEdit" parent="MainMenu/LocalSetup/HBoxContainer"]
+custom_minimum_size = Vector2(125, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+placeholder_text = "Player Name"
+
 [node name="StartGame" type="Button" parent="MainMenu/LocalSetup"]
 layout_mode = 2
+size_flags_vertical = 4
 text = "Start Game"
 
+[node name="PlayerList" type="Label" parent="MainMenu"]
+layout_mode = 2
+offset_left = 921.0
+offset_top = 241.0
+offset_right = 1153.0
+offset_bottom = 267.0
+text = "Current Players:"
+
 [node name="MainMenu" type="VBoxContainer" parent="MainMenu"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -172,6 +200,8 @@ caret_blink = true
 
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Push" to="." method="_on_push_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Rotate" to="." method="_on_rotate_pressed"]
+[connection signal="pressed" from="HBoxContainer/Panel/GameActions/EndMove" to="." method="_on_end_move_pressed"]
+[connection signal="pressed" from="MainMenu/LocalSetup/HBoxContainer/AddPlayer" to="." method="_on_add_player_pressed"]
 [connection signal="pressed" from="MainMenu/LocalSetup/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/Client" to="." method="_on_client_pressed"]
