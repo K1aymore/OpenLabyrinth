@@ -134,6 +134,7 @@ func nextTurn():
 		nextPlayerNum = 0
 	setCurrentPlayer(players[nextPlayerNum])
 	turnStage = TURNSTAGE.TILE
+	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
 
 
 func setCurrentPlayer(newCurPlayer : Player):
@@ -172,8 +173,11 @@ func movePlayer(dir : Vector2):
 
 
 func _on_push_pressed():
-	if isCurrentPlayer:
+	if isCurrentPlayer && board.getArrow(board.spareTile.pos).visible == true:
 		board.push()
+		for arrow in board.arrows:
+			arrow.visible = true
+		board.getArrow(board.spareTile.pos).visible = false
 		setupMovePlayer()
 
 

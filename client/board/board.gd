@@ -13,6 +13,7 @@ var pushArrowScene := preload("res://board/push_arrow.tscn")
 var tiles : Array[Tile]
 var arrows : Array[PushArrow]
 var spareTile : Tile
+var disabledArrowPos : Vector2
 
 
 enum {
@@ -125,7 +126,7 @@ func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNu
 		spareTile.isSpare = false
 	spareTile = tiles[spareTileNum]
 	spareTile.isSpare = true
-
+	checkPlayersOffBoard()
 
 
 
@@ -133,8 +134,8 @@ func updateServerTiles():
 	if is_multiplayer_authority():
 		return
 	
-	var tilePositions : Array
-	var tileRotations : Array
+	var tilePositions : Array[Vector2]
+	var tileRotations : Array[int]
 	
 	for tile in tiles:
 		tilePositions.append(tile.pos)
@@ -147,35 +148,22 @@ func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
 	pass
 
 
+func updateServerPlayers():
+	if is_multiplayer_authority():
+		return
+	
+	var playerPositions : Array[Vector2]
+	
+	for player in main.players:
+		playerPositions.append(player.tile.pos)
+
+@rpc
+func serverUpdatePlayers(playerPositions : Array[Vector2]):
+	pass
+
 
 
 func push():
-	pushLine()
-	
-	spareTile.isSpare = false
-	for tile in tiles:
-		if tile.pos.x > 6 || tile.pos.x < 0 || tile.pos.y > 6 || tile.pos.y < 0:
-			spareTile = tile
-			continue
-	spareTile.isSpare = true
-	
-	for player in main.players:
-		if player.tile.isSpare:
-			var newTilePos := player.tile.pos
-			if player.tile.pos.x > 6:
-				newTilePos.x = 0
-			elif player.tile.pos.x < 0:
-				newTilePos.x = 6
-			elif player.tile.pos.y > 6:
-				newTilePos.y = 0
-			else:
-				newTilePos.y = 6
-			player.tile = getTile(newTilePos)
-	
-	updateServerTiles()
-
-
-func pushLine():
 	var pushedTiles : Array
 	var dir : Vector2
 	
@@ -195,6 +183,15 @@ func pushLine():
 	for tile in pushedTiles:
 		tile.push(dir)
 	
+	spareTile.isSpare = false
+	for tile in tiles:
+		if tile.pos.x > 6 || tile.pos.x < 0 || tile.pos.y > 6 || tile.pos.y < 0:
+			spareTile = tile
+			continue
+	spareTile.isSpare = true
+	
+	checkPlayersOffBoard()
+	updateServerTiles()
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
@@ -212,6 +209,20 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 	
 	return lineTiles
 
+
+func checkPlayersOffBoard():
+	for player in main.players:
+		if player.tile.isSpare:
+			var newTilePos := player.tile.pos
+			if player.tile.pos.x > 6:
+				newTilePos.x = 0
+			elif player.tile.pos.x < 0:
+				newTilePos.x = 6
+			elif player.tile.pos.y > 6:
+				newTilePos.y = 0
+			else:
+				newTilePos.y = 6
+			player.tile = getTile(newTilePos)
 
 
 
@@ -232,5 +243,13 @@ func getTile(pos : Vector2) -> Tile:
 	for tile in tiles:
 		if tile.pos.round().is_equal_approx(pos.round()):
 			return tile
+	
+	return null
+
+
+func getArrow(pos : Vector2) -> PushArrow:
+	for arrow in arrows:
+		if arrow.pos.round().is_equal_approx(pos.round()):
+			return arrow
 	
 	return null
