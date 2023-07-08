@@ -1,16 +1,19 @@
 extends Node2D
 
+class_name Board
+
+var main : Main
 var isCurrentPlayer := false
 
 var tileScene := preload("res://board/tile.tscn")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")
+var playerSpriteScene := preload("res://board/player_sprite.tscn")
 var pushArrowScene := preload("res://board/push_arrow.tscn")
 
 var tiles : Array[Tile]
 var arrows : Array[PushArrow]
 var spareTile : Tile
 
-var playerPos := Vector2.ZERO
 
 enum {
 	ROW,
@@ -20,7 +23,6 @@ enum {
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Icon.visible = false
-	
 	
 	for col in [1, 3, 5]:
 		var arrow := pushArrowScene.instantiate()
@@ -94,6 +96,13 @@ func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	newTileSprite.tile = newTile
 	add_child(newTileSprite)
 	return newTile
+
+
+func addPlayerSprites(players : Array[Player]):
+	for player in players:
+		var newSprite : PlayerSprite = playerSpriteScene.instantiate()
+		newSprite.player = player
+		add_child(newSprite)
 
 
 @rpc
@@ -171,6 +180,7 @@ func pushLine():
 	
 	for tile in pushedTiles:
 		tile.push(dir)
+	
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
@@ -192,13 +202,10 @@ func getTileLine(lineNum : int, rowCol) -> Array:
 
 
 func arrowPressed(pos):
-	if isCurrentPlayer:
-		moveSpareTile(pos)
+	if isCurrentPlayer && main.turnStage == Main.TURNSTAGE.TILE:
+		spareTile.pos = pos
+		updateServerTiles()
 
-
-func moveSpareTile(pos : Vector2):
-	spareTile.pos = pos
-	updateServerTiles()
 
 
 func rotateSpareTile():
@@ -207,17 +214,9 @@ func rotateSpareTile():
 
 
 
-func movePlayer(dir : Vector2):
-	var currTile = getTile(playerPos)
-	var nextTile = getTile(playerPos + dir)
-	if currTile != null && nextTile != null && currTile.canMoveThrough(dir) && nextTile.canMoveThrough(-dir):
-		playerPos += dir.round()
-		$PlayerSprite.position = playerPos * Tile.TILESIZE
-
-
 func getTile(pos : Vector2) -> Tile:
 	for tile in tiles:
-		if tile.pos.is_equal_approx(pos):
+		if tile.pos.round().is_equal_approx(pos.round()):
 			return tile
 	
 	return null

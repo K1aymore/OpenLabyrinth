@@ -11,8 +11,3 @@ position = Vector2(-32, -32)
 scale = Vector2(3.5, 3.5)
 texture = ExtResource("2_qnu4y")
 centered = false
-
-[node name="PlayerSprite" type="Sprite2D" parent="."]
-z_index = 20
-scale = Vector2(0.3, 0.3)
-texture = ExtResource("2_qnu4y")

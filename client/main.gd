@@ -1,18 +1,19 @@
 extends Control
 
+class_name Main
+
 const DEFAULTIP = "localhost"
 const DEFAULTPORT = 4433
 
-@onready var board := $HBoxContainer/SubViewportContainer/SubViewport/Board
+@onready var board : Board = $HBoxContainer/SubViewportContainer/SubViewport/Board
 
 @onready var connectIP : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectIP
 @onready var connectPort : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectPort
 
 const MAX_PLAYERS = 4
 
-var players : Array[String]
-var myPlayers : Array[String]
-var currentPlayer : String
+var players : Array[Player]
+var currentPlayer : Player
 var isCurrentPlayer := false
 
 var turnStage := TURNSTAGE.TILE
@@ -33,19 +34,20 @@ func _ready():
 	$MainMenu/MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
 	$MainMenu/LocalSetup.visible = false
+	board.main = self
 
 
 
 func _process(delta):
 	if isCurrentPlayer && turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
-			board.movePlayer(Vector2.UP)
+			movePlayer(Vector2.UP)
 		if Input.is_action_just_pressed("left"):
-			board.movePlayer(Vector2.LEFT)
+			movePlayer(Vector2.LEFT)
 		if Input.is_action_just_pressed("right"):
-			board.movePlayer(Vector2.RIGHT)
+			movePlayer(Vector2.RIGHT)
 		if Input.is_action_just_pressed("down"):
-			board.movePlayer(Vector2.DOWN)
+			movePlayer(Vector2.DOWN)
 
 
 func _on_start_local_pressed():
@@ -57,17 +59,18 @@ func _on_add_player_pressed():
 	if players.size() >= MAX_PLAYERS:
 		return
 	
+	var newPlayer := Player.new()
 	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
-	var name := text if text != "" else str(randi())
-	players.append(name)
-	myPlayers.append(name)
+	newPlayer.name = text if text != "" else str(randi())
+	newPlayer.ownedClientID = multiplayer.get_unique_id()
+	
+	players.append(newPlayer)
 	$MainMenu/PlayerList.text = getPlayerList()
 	$MainMenu/LocalSetup/HBoxContainer/PlayerName.text = ""
 
 
 func _on_start_game_pressed():
 	currentPlayer = players[0]
-	board.generateMap()
 	closeMainMenu()
 	startGame()
 
@@ -105,21 +108,51 @@ func startGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer/Panel/GameActions.visible = true
-	isCurrentPlayer = true
-	board.isCurrentPlayer = true
 	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = getPlayerList()
+	setCurrentPlayer(players[0])
+	board.generateMap()
+	
+	for i in players.size():
+		var playerStart : Vector2
+		match i:
+			0:
+				playerStart = Vector2(0, 0)
+			1:
+				playerStart = Vector2(6, 0)
+			2:
+				playerStart = Vector2(0, 6)
+			3:
+				playerStart = Vector2(6, 6)
+		players[i].tile = board.getTile(playerStart)
+	
+	board.addPlayerSprites(players)
 
 
 func nextTurn():
 	var nextPlayerNum : int = players.find(currentPlayer) + 1
-	currentPlayer = players[nextPlayerNum]
-	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer
-	isCurrentPlayer = myPlayers.has(currentPlayer)
+	if nextPlayerNum >= players.size():
+		nextPlayerNum = 0
+	setCurrentPlayer(players[nextPlayerNum])
+	turnStage = TURNSTAGE.TILE
+
+
+func setCurrentPlayer(newCurPlayer : Player):
+	currentPlayer = newCurPlayer
+	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
+	isCurrentPlayer = currentPlayer.ownedClientID == multiplayer.get_unique_id()
 	board.isCurrentPlayer = isCurrentPlayer
 	
 	for button in $HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
 			button.disabled = !isCurrentPlayer
+
+
+func getPlayerList() -> String:
+	var playerNames := "Current Players:"
+	for p in players:
+		playerNames += "\n" + p.name
+	
+	return playerNames
 
 
 func setupMovePlayer():
@@ -130,12 +163,12 @@ func setupMovePlayer():
 	$HBoxContainer/Panel/GameActions/EndMove.disabled = false
 
 
-func getPlayerList() -> String:
-	var playerNames := "Current Players:"
-	for s in players:
-		playerNames += "\n" + s
-	
-	return playerNames
+func movePlayer(dir : Vector2):
+	var currTile = currentPlayer.tile
+	var nextTile = board.getTile(currentPlayer.tile.pos + dir)
+	if currTile != null && nextTile != null && currTile.canMoveThrough(dir) && nextTile.canMoveThrough(-dir):
+		currentPlayer.tile = nextTile
+
 
 
 func _on_push_pressed():

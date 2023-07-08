@@ -2,9 +2,9 @@ extends Sprite2D
 
 var tile : Tile
 
-var cornerSprite := preload("res://assets/basic/corner.svg")
-var straightSprite := preload("res://assets/basic/straight.svg")
-var tshapeSprite := preload("res://assets/basic/t-shape.svg")
+var cornerSprite := preload("res://assets/basic/corner.png")
+var straightSprite := preload("res://assets/basic/straight.png")
+var tshapeSprite := preload("res://assets/basic/t-shape.png")
 
 @onready var itemSprite : Sprite2D = $ItemSprite
 
