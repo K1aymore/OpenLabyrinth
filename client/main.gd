@@ -25,6 +25,7 @@ enum TURNSTAGE {
 
 
 func _ready():
+	randomize()
 	# Start paused.
 	get_tree().paused = true
 	# You can save bandwidth by disabling server relay and peer notifications.
@@ -35,6 +36,7 @@ func _ready():
 	$HBoxContainer/Panel/GameActions.visible = false
 	$MainMenu/LocalSetup.visible = false
 	board.main = self
+	
 
 
 
@@ -123,9 +125,21 @@ func startGame():
 				playerStart = Vector2(0, 6)
 			3:
 				playerStart = Vector2(6, 6)
-		players[i].tile = board.getTile(playerStart)
+		var startTile := board.getTile(playerStart)
+		players[i].tile = startTile
+		players[i].homeTile = startTile
+	
+	var itemsList : Array[Tile.ITEM]
+	for i in range(1, Tile.ITEM.size()):
+		itemsList.append(i)
+	itemsList.shuffle()
+	
+	for player in players:
+		for i in range(0, Tile.ITEM.size() / players.size()):
+			player.neededItems.append(itemsList.pop_back())
 	
 	board.addPlayerSprites(players)
+	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
 
 
 func nextTurn():
@@ -135,6 +149,16 @@ func nextTurn():
 	setCurrentPlayer(players[nextPlayerNum])
 	turnStage = TURNSTAGE.TILE
 	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
+	
+	match currentPlayer.homeTile.pos.round():
+		Vector2(0,0):
+			board.spareTile.pos = Vector2(-1, -1)
+		Vector2(6, 0):
+			board.spareTile.pos = Vector2(7, -1)
+		Vector2(0, 6):
+			board.spareTile.pos = Vector2(-1, 7)
+		Vector2(6, 6):
+			board.spareTile.pos = Vector2(7, 7)
 
 
 func setCurrentPlayer(newCurPlayer : Player):
