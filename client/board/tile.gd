@@ -5,7 +5,7 @@ const TILESIZE = 60
 
 var type := TYPE.STRAIGHT
 var color := COLOR.NONE
-var item := ITEM.NONE
+var item : ITEM = ITEM.NONE
 
 var isSpare := false
 

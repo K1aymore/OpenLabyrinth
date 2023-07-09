@@ -3,7 +3,6 @@ extends Node2D
 class_name Board
 
 var main : Main
-var isCurrentPlayer := false
 
 var tileScene := preload("res://board/tile.tscn")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")
@@ -227,7 +226,7 @@ func checkPlayersOffBoard():
 
 
 func arrowPressed(pos):
-	if isCurrentPlayer && main.turnStage == Main.TURNSTAGE.TILE:
+	if main.isCurrentClient && main.turnStage == Main.TURNSTAGE.TILE:
 		spareTile.pos = pos
 		updateServerTiles()
 

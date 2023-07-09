@@ -14,7 +14,7 @@ const MAX_PLAYERS = 4
 
 var players : Array[Player]
 var currentPlayer : Player
-var isCurrentPlayer := false
+var isCurrentClient := false
 
 var turnStage := TURNSTAGE.TILE
 
@@ -41,7 +41,7 @@ func _ready():
 
 
 func _process(delta):
-	if isCurrentPlayer && turnStage == TURNSTAGE.MOVE:
+	if isCurrentClient && turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
 			movePlayer(Vector2.UP)
 		if Input.is_action_just_pressed("left"):
@@ -65,6 +65,10 @@ func _on_add_player_pressed():
 	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
 	newPlayer.name = text if text != "" else str(randi())
 	newPlayer.ownedClientID = multiplayer.get_unique_id()
+	
+	var playerDisplay := preload("res://player_display.tscn").instantiate()
+	playerDisplay.player = newPlayer
+	$HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
 	
 	players.append(newPlayer)
 	$MainMenu/PlayerList.text = getPlayerList()
@@ -164,12 +168,11 @@ func nextTurn():
 func setCurrentPlayer(newCurPlayer : Player):
 	currentPlayer = newCurPlayer
 	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
-	isCurrentPlayer = currentPlayer.ownedClientID == multiplayer.get_unique_id()
-	board.isCurrentPlayer = isCurrentPlayer
+	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
 	
 	for button in $HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
-			button.disabled = !isCurrentPlayer
+			button.disabled = !isCurrentClient
 
 
 func getPlayerList() -> String:
@@ -197,7 +200,7 @@ func movePlayer(dir : Vector2):
 
 
 func _on_push_pressed():
-	if isCurrentPlayer && board.getArrow(board.spareTile.pos).visible == true:
+	if isCurrentClient && board.getArrow(board.spareTile.pos).visible == true:
 		board.push()
 		for arrow in board.arrows:
 			arrow.visible = true
