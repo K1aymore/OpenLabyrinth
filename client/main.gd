@@ -41,7 +41,11 @@ func _ready():
 
 
 func _process(delta):
-	if isCurrentClient && turnStage == TURNSTAGE.MOVE:
+	if !isCurrentClient:
+		return
+	
+	
+	if turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
 			movePlayer(Vector2.UP)
 		if Input.is_action_just_pressed("left"):
@@ -50,6 +54,42 @@ func _process(delta):
 			movePlayer(Vector2.RIGHT)
 		if Input.is_action_just_pressed("down"):
 			movePlayer(Vector2.DOWN)
+		
+		if Input.is_action_just_pressed("ui_accept"):
+			_on_end_move_pressed()
+	
+	
+	if turnStage == TURNSTAGE.TILE:
+		var pos : Vector2i = board.spareTile.pos.round()
+		if Input.is_action_just_pressed("up"):
+			if pos.y == 7 && pos.x != -1 && pos.x != 7:
+				pos.y = -1
+			else:
+				pos += Vector2i.UP * 2
+		if Input.is_action_just_pressed("left"):
+			if pos.x == 7 && pos.y != -1 && pos.y != 7:
+				pos.x = -1
+			else:
+				pos += Vector2i.LEFT * 2
+		if Input.is_action_just_pressed("right"):
+			if pos.x == -1 && pos.y != -1 && pos.y != 7:
+				pos.x = 7
+			else:
+				pos += Vector2i.RIGHT * 2
+		if Input.is_action_just_pressed("down"):
+			if pos.y == -1 && pos.x != -1 && pos.x != 7:
+				pos.y = 7
+			else:
+				pos += Vector2i.DOWN * 2
+		
+		board.moveSpareTile(pos)
+		
+		
+		if Input.is_action_just_pressed("rotate"):
+			_on_rotate_pressed()
+		if Input.is_action_just_pressed("ui_accept"):
+			_on_push_pressed()
+	
 
 
 func _on_start_local_pressed():
@@ -139,7 +179,7 @@ func startGame():
 	itemsList.shuffle()
 	
 	for player in players:
-		for i in range(0, Tile.ITEM.size() / players.size()):
+		for i in 24 / players.size():
 			player.neededItems.append(itemsList.pop_back())
 	
 	board.addPlayerSprites(players)
@@ -200,7 +240,9 @@ func movePlayer(dir : Vector2):
 
 
 func _on_push_pressed():
-	if isCurrentClient && board.getArrow(board.spareTile.pos).visible == true:
+	if isCurrentClient && board.getArrow(board.spareTile.pos) != null && \
+			board.getArrow(board.spareTile.pos).visible == true:
+		
 		board.push()
 		for arrow in board.arrows:
 			arrow.visible = true
@@ -213,5 +255,10 @@ func _on_rotate_pressed():
 
 
 func _on_end_move_pressed():
-	if turnStage == TURNSTAGE.MOVE:
-		nextTurn()
+	if turnStage != TURNSTAGE.MOVE:
+		return
+	
+	if currentPlayer.neededItems.size() > 0 && currentPlayer.neededItems[0] == currentPlayer.tile.item:
+		currentPlayer.foundItems.append(currentPlayer.neededItems.pop_front())
+	
+	nextTurn()

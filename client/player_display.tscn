@@ -20,3 +20,6 @@ text = "Klaymore"
 layout_mode = 2
 texture = ExtResource("2_lbpiv")
 stretch_mode = 3
+
+[node name="ItemCountLabel" type="Label" parent="."]
+layout_mode = 2

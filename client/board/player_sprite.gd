@@ -11,8 +11,9 @@ func _ready():
 	scale = Vector2(0.3, 0.3)
 
 func _process(delta):
+	z_index = 30 if player.tile.isSpare else 0
+	
 	if !position.is_equal_approx(player.tile.pos * Tile.TILESIZE):
-		z_index = 1 if player.tile.isSpare else 0
 		position = position.lerp(player.tile.pos * Tile.TILESIZE, delta * 10)
 	
 	global_rotation_degrees = 0

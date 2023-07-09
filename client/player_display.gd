@@ -15,6 +15,7 @@ func _process(delta):
 	
 	$Label.text = player.name
 	
+	$ItemCountLabel.text = "Items left: " + str(player.neededItems.size())
 	
 	$ItemImage.texture = (TileSprite.getItemImage(player.neededItems[0])
 		if player.neededItems.size() > 0 else null)

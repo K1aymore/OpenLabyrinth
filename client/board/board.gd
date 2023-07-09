@@ -227,6 +227,13 @@ func checkPlayersOffBoard():
 
 func arrowPressed(pos):
 	if main.isCurrentClient && main.turnStage == Main.TURNSTAGE.TILE:
+		moveSpareTile(pos)
+
+
+func moveSpareTile(pos : Vector2):
+	if getArrow(pos) != null || pos == Vector2(-1,-1) || pos == Vector2(7,-1) || \
+			pos == Vector2(-1,7) || pos == Vector2(7, 7):
+		
 		spareTile.pos = pos
 		updateServerTiles()
 
