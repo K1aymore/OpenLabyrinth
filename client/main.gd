@@ -15,6 +15,7 @@ const MAX_PLAYERS = 4
 var players : Array[Player]
 var currentPlayer : Player
 var isCurrentClient := false
+var gameID : int
 
 var turnStage := TURNSTAGE.TILE
 
@@ -121,6 +122,31 @@ func _on_start_game_pressed():
 	startGame()
 
 
+
+
+@rpc("any_peer")
+func serverClientJoinGame(gameNum : int, peerID : int):
+	pass
+
+
+
+@rpc("any_peer")
+func serverStartGame():
+	pass
+
+
+
+@rpc("any_peer")
+func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
+	pass
+
+
+@rpc("any_peer")
+func serverUpdatePlayers(playerPositions):
+	pass
+
+
+
 func _on_client_pressed():
 	var ip = connectIP.text if connectIP.text != "" else DEFAULTIP
 	var port = connectPort.text.to_int() if connectPort.text != "" else DEFAULTPORT
@@ -184,6 +210,7 @@ func startGame():
 	
 	board.addPlayerSprites(players)
 	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
+	
 
 
 func nextTurn():
@@ -203,6 +230,8 @@ func nextTurn():
 			board.spareTile.pos = Vector2(-1, 7)
 		Vector2(6, 6):
 			board.spareTile.pos = Vector2(7, 7)
+	
+	
 
 
 func setCurrentPlayer(newCurPlayer : Player):

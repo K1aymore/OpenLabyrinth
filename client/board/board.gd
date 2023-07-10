@@ -105,17 +105,17 @@ func addPlayerSprites(players : Array[Player]):
 		add_child(newSprite)
 
 
-@rpc
-func clientLoadTiles(tileTypes : Array, tileItems : Array):
-	if tiles.size() >= tileTypes.size():
-		return
+func loadTiles(tileTypes : Array, tileItems : Array):
+	tiles.clear()
+	for child in get_children():
+		if child is TileSprite:
+			child.queue_free()
 	
 	for i in tileTypes:
 		addNewTile(tileTypes[i], tileItems[i])
 
 
-@rpc
-func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
+func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
 	for i in tiles.size():
 		var tile := tiles[i]
 		tile.pos = tilePositions[i]
@@ -140,11 +140,7 @@ func updateServerTiles():
 		tilePositions.append(tile.pos)
 		tileRotations.append(tile.rot)
 	
-	serverUpdateTiles.rpc_id(1, tilePositions, tileRotations, tiles.find(spareTile))
-
-@rpc
-func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
-	pass
+	main.serverUpdateTiles.rpc_id(1, tilePositions, tileRotations, tiles.find(spareTile))
 
 
 func updateServerPlayers():
@@ -155,11 +151,8 @@ func updateServerPlayers():
 	
 	for player in main.players:
 		playerPositions.append(player.tile.pos)
-
-@rpc
-func serverUpdatePlayers(playerPositions : Array[Vector2]):
-	pass
-
+	
+	main.serverUpdatePlayers.rpc_id(1, playerPositions)
 
 
 func push():
