@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmargsd4h5eal"]
+[gd_scene load_steps=4 format=3 uid="uid://cmargsd4h5eal"]
 
 [ext_resource type="Script" path="res://player_display.gd" id="1_x43p2"]
 [ext_resource type="Texture2D" uid="uid://gjv14xw1ybh5" path="res://assets/basic/pieces/Bat.svg" id="2_lbpiv"]
+[ext_resource type="Texture2D" uid="uid://4cdxbt0pkpek" path="res://assets/basic/CaretUp.svg" id="3_0vf0e"]
 
 [node name="PlayerDisplay" type="HBoxContainer"]
 anchors_preset = 15
@@ -16,6 +17,13 @@ script = ExtResource("1_x43p2")
 layout_mode = 2
 text = "Klaymore"
 
+[node name="Sprite2D" type="Sprite2D" parent="Label"]
+position = Vector2(-8, 12)
+rotation = 1.5708
+scale = Vector2(0.052, 0.12)
+texture = ExtResource("3_0vf0e")
+offset = Vector2(0, 108)
+
 [node name="ItemImage" type="TextureRect" parent="."]
 layout_mode = 2
 texture = ExtResource("2_lbpiv")
@@ -23,3 +31,4 @@ stretch_mode = 3
 
 [node name="ItemCountLabel" type="Label" parent="."]
 layout_mode = 2
+text = "Needed Items: 4"

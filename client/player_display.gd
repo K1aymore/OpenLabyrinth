@@ -1,5 +1,9 @@
 extends HBoxContainer
 
+class_name PlayerDisplay
+
+var main : Main
+
 var player : Player
 
 
@@ -14,6 +18,8 @@ func _process(delta):
 		return
 	
 	$Label.text = player.name
+	$Label/Sprite2D.visible = player == main.currentPlayer
+	
 	
 	$ItemCountLabel.text = "Items left: " + str(player.neededItems.size())
 	

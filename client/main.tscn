@@ -102,10 +102,7 @@ theme_override_constants/separation = 4
 
 [node name="CurrPlayerLabel" type="Label" parent="HBoxContainer/Panel2/PlayersList"]
 layout_mode = 2
-
-[node name="PlayersLabel" type="Label" parent="HBoxContainer/Panel2/PlayersList"]
-layout_mode = 2
-text = "Players:"
+text = "Current Player: "
 
 [node name="MainMenu" type="Panel" parent="."]
 visible = false
@@ -117,6 +114,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="LocalSetup" type="VBoxContainer" parent="MainMenu"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -158,7 +156,6 @@ offset_bottom = 267.0
 text = "Current Players:"
 
 [node name="MainMenu" type="VBoxContainer" parent="MainMenu"]
-visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -178,6 +175,17 @@ layout_mode = 2
 [node name="StartLocal" type="Button" parent="MainMenu/MainMenu/HBoxContainer"]
 layout_mode = 2
 text = "Start Local Game"
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="MainMenu/MainMenu"]
+layout_mode = 2
+
+[node name="StartLan" type="Button" parent="MainMenu/MainMenu/HBoxContainer3"]
+layout_mode = 2
+text = "Start LAN Game"
+
+[node name="LineEdit" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer3"]
+layout_mode = 2
+placeholder_text = "Port"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 2
@@ -206,4 +214,5 @@ caret_blink = true
 [connection signal="pressed" from="MainMenu/LocalSetup/HBoxContainer/AddPlayer" to="." method="_on_add_player_pressed"]
 [connection signal="pressed" from="MainMenu/LocalSetup/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer3/StartLan" to="." method="_on_start_lan_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/Client" to="." method="_on_client_pressed"]

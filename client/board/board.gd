@@ -98,8 +98,8 @@ func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
 	return newTile
 
 
-func addPlayerSprites(players : Array[Player]):
-	for player in players:
+func addPlayerSprites():
+	for player in main.players:
 		var newSprite : PlayerSprite = playerSpriteScene.instantiate()
 		newSprite.player = player
 		add_child(newSprite)
@@ -127,32 +127,6 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 	spareTile.isSpare = true
 	checkPlayersOffBoard()
 
-
-
-func updateServerTiles():
-	if is_multiplayer_authority():
-		return
-	
-	var tilePositions : Array[Vector2]
-	var tileRotations : Array[int]
-	
-	for tile in tiles:
-		tilePositions.append(tile.pos)
-		tileRotations.append(tile.rot)
-	
-	main.serverUpdateTiles.rpc_id(1, tilePositions, tileRotations, tiles.find(spareTile))
-
-
-func updateServerPlayers():
-	if is_multiplayer_authority():
-		return
-	
-	var playerPositions : Array[Vector2]
-	
-	for player in main.players:
-		playerPositions.append(player.tile.pos)
-	
-	main.serverUpdatePlayers.rpc_id(1, playerPositions)
 
 
 func push():
@@ -183,7 +157,7 @@ func push():
 	spareTile.isSpare = true
 	
 	checkPlayersOffBoard()
-	updateServerTiles()
+	main.updateServerTiles()
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
@@ -228,13 +202,13 @@ func moveSpareTile(pos : Vector2):
 			pos == Vector2(-1,7) || pos == Vector2(7, 7):
 		
 		spareTile.pos = pos
-		updateServerTiles()
+		main.updateServerTiles()
 
 
 
 func rotateSpareTile():
 	spareTile.rot = snappedi(spareTile.rot + 90, 90)
-	updateServerTiles()
+	main.updateServerTiles()
 
 
 

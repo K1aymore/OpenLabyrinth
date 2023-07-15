@@ -15,7 +15,7 @@ const MAX_PLAYERS = 4
 var players : Array[Player]
 var currentPlayer : Player
 var isCurrentClient := false
-var gameID : int
+var boardNum : int = 0
 
 var turnStage := TURNSTAGE.TILE
 
@@ -40,11 +40,17 @@ func _ready():
 	
 
 
-
 func _process(delta):
 	if !isCurrentClient:
+		for button in $HBoxContainer/Panel/GameActions.get_children():
+			if button is Button:
+				button.disabled = true
 		return
 	
+	
+	$HBoxContainer/Panel/GameActions/Push.disabled = turnStage == TURNSTAGE.MOVE
+	$HBoxContainer/Panel/GameActions/Rotate.disabled = turnStage == TURNSTAGE.MOVE
+	$HBoxContainer/Panel/GameActions/EndMove.disabled = turnStage == TURNSTAGE.TILE
 	
 	if turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
@@ -56,7 +62,7 @@ func _process(delta):
 		if Input.is_action_just_pressed("down"):
 			movePlayer(Vector2.DOWN)
 		
-		if Input.is_action_just_pressed("ui_accept"):
+		if Input.is_action_just_pressed("push"):
 			_on_end_move_pressed()
 	
 	
@@ -88,9 +94,8 @@ func _process(delta):
 		
 		if Input.is_action_just_pressed("rotate"):
 			_on_rotate_pressed()
-		if Input.is_action_just_pressed("ui_accept"):
+		if Input.is_action_just_pressed("push"):
 			_on_push_pressed()
-	
 
 
 func _on_start_local_pressed():
@@ -102,48 +107,52 @@ func _on_add_player_pressed():
 	if players.size() >= MAX_PLAYERS:
 		return
 	
-	var newPlayer := Player.new()
 	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
-	newPlayer.name = text if text != "" else str(randi())
-	newPlayer.ownedClientID = multiplayer.get_unique_id()
-	
-	var playerDisplay := preload("res://player_display.tscn").instantiate()
-	playerDisplay.player = newPlayer
-	$HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
-	
-	players.append(newPlayer)
-	$MainMenu/PlayerList.text = getPlayerList()
+	addPlayer(text, multiplayer.get_unique_id())
 	$MainMenu/LocalSetup/HBoxContainer/PlayerName.text = ""
 
 
+func addPlayer(name : String, clientID : int):
+	var newPlayer := Player.new()
+	newPlayer.name = name if name != "" else str(randi())
+	newPlayer.ownedClientID = clientID
+	
+	players.append(newPlayer)
+	
+	var playerDisplay : PlayerDisplay = preload("res://player_display.tscn").instantiate()
+	playerDisplay.main = self
+	playerDisplay.player = newPlayer
+	$HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
+	$MainMenu/PlayerList.text = getPlayerList()
+
+
+# start local game
 func _on_start_game_pressed():
-	currentPlayer = players[0]
-	closeMainMenu()
 	startGame()
 
 
+func _on_start_lan_pressed():
+	var peer = ENetMultiplayerPeer.new()
+	peer.create_server(DEFAULTPORT)
+	
+	if peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
+		print("Failed to start multiplayer server.")
+		return
+	
+	multiplayer.multiplayer_peer = peer
+	peer.peer_connected.connect(lanPlayerConnected)
+	peer.peer_disconnected.connect(lanPlayerDisconnected)
 
 
-@rpc("any_peer")
-func serverClientJoinGame(gameNum : int, peerID : int):
-	pass
+
+func lanPlayerConnected(peerID : int):
+	await get_tree().create_timer(1).timeout
+	updateServerPlayers()
 
 
-
-@rpc("any_peer")
-func serverStartGame():
-	pass
-
-
-
-@rpc("any_peer")
-func serverUpdateTiles(tilePositions, tileRotations, spareTileID):
-	pass
-
-
-@rpc("any_peer")
-func serverUpdatePlayers(playerPositions):
-	pass
+func lanPlayerDisconnected(peerID : int):
+	await get_tree().create_timer(1).timeout
+	updateServerPlayers()
 
 
 
@@ -164,24 +173,15 @@ func _on_client_pressed():
 
 
 func connectSuccess():
-	closeMainMenu()
-
-func connectFail():
-	print("Failed to start multiplayer client.")
-
-
-
-func closeMainMenu():
-	$MainMenu.visible = false
-
+	print("Connected to server")
+	$MainMenu/MainMenu.visible = false
+	$MainMenu/LocalSetup.visible = false
+	serverClientJoinGame.rpc_id(1, boardNum, multiplayer.get_unique_id())
+	
 
 
 func startGame():
-	get_tree().paused = false
-	$MainMenu.visible = false
-	$HBoxContainer/Panel/GameActions.visible = true
-	$HBoxContainer/Panel2/PlayersList/PlayersLabel.text = getPlayerList()
-	setCurrentPlayer(players[0])
+	currentPlayer = players[0]
 	board.generateMap()
 	
 	for i in players.size():
@@ -208,40 +208,21 @@ func startGame():
 		for i in 24 / players.size():
 			player.neededItems.append(itemsList.pop_back())
 	
-	board.addPlayerSprites(players)
-	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
-	
+	updateServerTiles()
+	updateServerPlayers()
+	startServerGame()
 
 
 func nextTurn():
 	var nextPlayerNum : int = players.find(currentPlayer) + 1
 	if nextPlayerNum >= players.size():
 		nextPlayerNum = 0
-	setCurrentPlayer(players[nextPlayerNum])
+	currentPlayer = players[nextPlayerNum]
 	turnStage = TURNSTAGE.TILE
-	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
 	
-	match currentPlayer.homeTile.pos.round():
-		Vector2(0,0):
-			board.spareTile.pos = Vector2(-1, -1)
-		Vector2(6, 0):
-			board.spareTile.pos = Vector2(7, -1)
-		Vector2(0, 6):
-			board.spareTile.pos = Vector2(-1, 7)
-		Vector2(6, 6):
-			board.spareTile.pos = Vector2(7, 7)
-	
-	
+	updateServerPlayers()
+	updateServerTiles()
 
-
-func setCurrentPlayer(newCurPlayer : Player):
-	currentPlayer = newCurPlayer
-	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
-	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
-	
-	for button in $HBoxContainer/Panel/GameActions.get_children():
-		if button is Button:
-			button.disabled = !isCurrentClient
 
 
 func getPlayerList() -> String:
@@ -291,3 +272,108 @@ func _on_end_move_pressed():
 		currentPlayer.foundItems.append(currentPlayer.neededItems.pop_front())
 	
 	nextTurn()
+
+
+
+
+func h():
+	pass
+
+func startServerGame():
+	print(multiplayer.get_unique_id())
+	serverStartGame.rpc_id(1, boardNum)
+
+
+func updateServerTiles():
+	var tilePositions : Array[Vector2]
+	var tileRotations : Array[int]
+	
+	for tile in board.tiles:
+		tilePositions.append(tile.pos)
+		tileRotations.append(tile.rot)
+	
+	serverUpdateTiles.rpc_id(1, boardNum, tilePositions, tileRotations, board.tiles.find(board.spareTile))
+
+
+func updateServerPlayers():
+	var playerPositions : Array[Vector2]
+	var playersNeededItems : Array[Array]
+	
+	for i in players.size():
+		var player := players[i]
+		playerPositions.append(player.tile.pos)
+		playersNeededItems.append(player.neededItems)
+	
+	serverUpdatePlayers.rpc_id(1, boardNum, playerPositions, playersNeededItems, players.find(currentPlayer))
+
+
+
+@rpc("any_peer", "call_local")
+func serverHostNewGame(peerID : int):
+	pass
+
+@rpc("any_peer", "call_local")
+func serverClientJoinGame(boardNum : int, peerID : int):
+	pass
+
+
+@rpc("any_peer", "call_local")
+func serverLoadTiles(boardNum, tileTypes, tileItems):
+	clientLoadTiles.rpc(tileTypes, tileItems)
+
+@rpc("any_peer", "call_local")
+func serverLoadPlayers():
+	pass
+
+@rpc("any_peer", "call_local")
+func serverStartGame(boardNum : int):
+	if is_multiplayer_authority():
+		clientStartGame.rpc()
+
+@rpc("any_peer", "call_local")
+func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileID):
+	clientUpdateTiles(tilePositions, tileRotations, spareTileID)
+
+@rpc("any_peer", "call_local")
+func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, newCurPlayerNum : int):
+	clientUpdatePlayers.rpc(playerPositions, playersNeededItems, newCurPlayerNum)
+
+
+
+
+@rpc("call_local")
+func clientLoadTiles(tileTypes, tileItems):
+	board.loadTiles(tileTypes, tileItems)
+
+
+@rpc("call_local")
+func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+	for i in playerNames.size():
+		addPlayer(playerNames[i], playerOwnedClients[i])
+
+
+@rpc("call_local")
+func clientStartGame():
+	get_tree().paused = false
+	$MainMenu.visible = false
+	$HBoxContainer.visible = true
+	$HBoxContainer/Panel/GameActions.visible = true
+	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
+	board.addPlayerSprites()
+
+
+@rpc("call_local")
+func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
+	board.updateTiles(tilePositions, tileRotations, spareTileNum)
+
+
+@rpc("call_local")
+func clientUpdatePlayers(playerPositions, playerNeededItems, newCurPlayerNum):
+	currentPlayer = players[newCurPlayerNum]
+	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
+	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
+	
+	for i in players.size():
+		var player := players[i]
+		player.tile = board.getTile(playerPositions[i])
+		player.neededItems = playerNeededItems[i]

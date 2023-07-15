@@ -58,8 +58,9 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	z_index = 1 if tile.isSpare else 0
+	
 	if !position.is_equal_approx(tile.pos * Tile.TILESIZE):
-		z_index = 1 if tile.isSpare else 0
 		position = position.lerp(tile.pos * Tile.TILESIZE, delta * 10)
 	
 	if !is_equal_approx(rotation_degrees, tile.rot):
