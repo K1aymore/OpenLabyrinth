@@ -204,7 +204,6 @@ func _on_join_board_pressed(boardID):
 
 
 func startGame():
-	print("starting game")
 	currentPlayer = players[0]
 	board.generateMap()
 	loadServerTiles()
@@ -244,6 +243,7 @@ func nextTurn():
 	if nextPlayerNum >= players.size():
 		nextPlayerNum = 0
 	currentPlayer = players[nextPlayerNum]
+	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
 	turnStage = TURNSTAGE.TILE
 	
 	updateServerPlayers()
@@ -322,6 +322,7 @@ func loadServerTiles():
 		tileTypes.append(tile.type)
 		tileItems.append(tile.item)
 	
+	print(tileItems)
 	serverLoadTiles.rpc_id(1, boardNum, tileTypes, tileItems)
 
 
@@ -439,8 +440,11 @@ func clientStartGame():
 
 @rpc("call_local")
 func clientUpdateTiles(tilePositions, tileRotations : Array, spareTileNum : int, disabledArrowPos : Vector2):
+	if isCurrentClient:
+		return
+	
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
-
+	board.disableArrow(disabledArrowPos)
 
 @rpc("call_local")
 func clientUpdatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):

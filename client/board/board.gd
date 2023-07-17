@@ -111,7 +111,7 @@ func loadTiles(tileTypes : Array, tileItems : Array):
 		if child is TileSprite:
 			child.queue_free()
 	
-	for i in tileTypes:
+	for i in tileTypes.size():
 		addNewTile(tileTypes[i], tileItems[i])
 
 
@@ -202,7 +202,12 @@ func arrowPressed(pos):
 func disableArrow(pos : Vector2):
 	for arrow in arrows:
 		arrow.visible = true
-	getArrow(pos).visible = false
+	
+	var arrow = getArrow(pos)
+	if arrow == null:
+		return
+	
+	arrow.visible = false
 	disabledArrowPos = pos
 
 

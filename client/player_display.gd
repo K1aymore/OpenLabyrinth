@@ -21,7 +21,8 @@ func _process(delta):
 	$Label/Sprite2D.visible = player == main.currentPlayer
 	
 	
-	$ItemCountLabel.text = "Items left: " + str(player.neededItems.size())
+	$ItemCountLabel.text = " Items left: " + str(player.neededItems.size())
 	
 	$ItemImage.texture = (TileSprite.getItemImage(player.neededItems[0])
-		if player.neededItems.size() > 0 else null)
+		if player.neededItems.size() > 0 && player.ownedClientID == multiplayer.get_unique_id()\
+		else null)
