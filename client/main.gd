@@ -34,11 +34,12 @@ func _ready():
 	get_tree().get_multiplayer().allow_object_decoding = true
 	$MainMenu.visible = true
 	$MainMenu/MainMenu.visible = true
+	$MainMenu/PlayerList.visible = false
 	$HBoxContainer/Panel/GameActions.visible = false
 	$MainMenu/LocalSetup.visible = false
 	$MainMenu/BoardList.visible = false
 	board.main = self
-	
+
 
 
 func _process(delta):
@@ -101,6 +102,7 @@ func _process(delta):
 
 func _on_start_local_pressed():
 	$MainMenu/MainMenu.visible = false
+	$MainMenu/PlayerList.visible = true
 	$MainMenu/LocalSetup.visible = true
 
 
@@ -191,12 +193,14 @@ func connectSuccess():
 func _on_create_new_board_pressed():
 	serverCreateNewGame.rpc_id(1, multiplayer.get_unique_id())
 	$MainMenu/BoardList.visible = false
+	$MainMenu/PlayerList.visible = true
 	$MainMenu/LocalSetup.visible = true
 
 
 func _on_join_board_pressed(boardID):
 	serverClientJoinGame.rpc_id(1, boardID, multiplayer.get_unique_id())
 	$MainMenu/BoardList.visible = false
+	$MainMenu/PlayerList.visible = true
 	$MainMenu/LocalSetup.visible = true
 
 
@@ -456,5 +460,3 @@ func clientUpdatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):
 		player.neededItems.clear()
 		for item in playersNeededItems[i]:
 			player.neededItems.append(item)
-
-

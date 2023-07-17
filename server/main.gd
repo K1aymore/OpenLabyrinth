@@ -123,3 +123,4 @@ func clientUpdateTiles():
 @rpc
 func clientUpdatePlayers():
 	pass
+

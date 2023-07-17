@@ -134,7 +134,7 @@ func generateMap():
 			if getTile(Vector2(horzNum, vertNum)) != null:
 				continue
 			
-			newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), Tile.ITEM.NONE)
+			newTile = addNewTile(null, Tile.ITEM.NONE)
 			newTile.rot = randi_range(0, 3) * 90
 			newTile.pos = Vector2(horzNum, vertNum)
 	
@@ -157,9 +157,18 @@ func addSolidTile(itemList : Array[Tile.ITEM]) -> Tile:
 	return addNewTile(Tile.TYPE.TSHAPE, itemList.pop_back())
 
 
-func addNewTile(type : Tile.TYPE, item) -> Tile:
+func addNewTile(type, item) -> Tile:
 	if item == null || !(item is Tile.ITEM):
 		item = Tile.ITEM.NONE
+	
+	if type == null || !(type is Tile.TYPE):
+		var num := randi_range(0, 99)
+		if num < 55:
+			type = Tile.TYPE.CORNER
+		elif num < 80:
+			type = Tile.TYPE.STRAIGHT
+		else:
+			type = Tile.TYPE.TSHAPE
 	
 	var newTile := Tile.new()
 	newTile.type = type
