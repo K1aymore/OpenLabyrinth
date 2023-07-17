@@ -11,6 +11,9 @@ func _ready():
 	scale = Vector2(0.3, 0.3)
 
 func _process(delta):
+	if player == null || player.tile == null:
+		return
+	
 	if !position.is_equal_approx(player.tile.pos * Tile.TILESIZE):
 		position = position.lerp(player.tile.pos * Tile.TILESIZE, delta * 10)
 	

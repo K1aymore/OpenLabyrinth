@@ -32,7 +32,14 @@ func _ready():
 func playerConnected(peerID : int):
 	await get_tree().create_timer(1).timeout
 	print(str(peerID) + " connected")
-	clientLoadBoardIDs.rpc_id(peerID, games)
+	
+	var boardIDs : Array[int]
+	
+	for i in games.size():
+		if games[i] is Game:
+			boardIDs.append(i)
+	
+	clientLoadBoardIDs.rpc_id(peerID, boardIDs)
 
 
 func playerDisconnected(peerID : int):
@@ -40,6 +47,8 @@ func playerDisconnected(peerID : int):
 	print(str(peerID) + " disconnected")
 	for game in games:
 		game.peerIDs.erase(peerID)
+		if game.peerIDs.size() <= 0:
+			games.erase(game)
 
 
 
@@ -58,30 +67,32 @@ func serverClientJoinGame(gameNum : int, peerID : int):
 
 @rpc("any_peer")
 func serverLoadTiles(boardNum, tileTypes, tileItems):
-	clientLoadTiles.rpc(tileTypes, tileItems)
-
-
-@rpc("any_peer")
-func serverLoadPlayers(playerNames : Array, playerOwnedClients : Array):
-	clientLoadPlayers.rpc(playerNames, playerOwnedClients)
-
-
-@rpc("any_peer")
-func serverStartGame(boardNum : int, tileTypes, tileItems):
 	for peerID in games[boardNum].peerIDs:
-		clientStartGame.rpc_id(peerID, tileTypes, tileItems)
+		clientLoadTiles.rpc_id(peerID, tileTypes, tileItems)
 
 
 @rpc("any_peer")
-func serverUpdateTiles(boardNum : int, tilePositions, tileRotations):
+func serverLoadPlayers(boardNum, playerNames : Array, playerOwnedClients : Array):
 	for peerID in games[boardNum].peerIDs:
-		clientUpdateTiles.rpc_id(peerID, tilePositions, tileRotations)
+		clientLoadPlayers.rpc_id(peerID, playerNames, playerOwnedClients)
 
 
 @rpc("any_peer")
-func serverUpdatePlayers(boardNum : int, player1Items, player2Items, player3Items, player4Items):
+func serverStartGame(boardNum : int):
 	for peerID in games[boardNum].peerIDs:
-		clientUpdatePlayers.rpc_id(peerID, player1Items, player2Items, player3Items, player4Items)
+		clientStartGame.rpc_id(peerID)
+
+
+@rpc("any_peer")
+func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileNum, disabledArrowPos):
+	for peerID in games[boardNum].peerIDs:
+		clientUpdateTiles.rpc_id(peerID, tilePositions, tileRotations, spareTileNum, disabledArrowPos)
+
+
+@rpc("any_peer")
+func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, newCurPlayerNum):
+	for peerID in games[boardNum].peerIDs:
+		clientUpdatePlayers.rpc_id(peerID, playerPositions, playersNeededItems, newCurPlayerNum)
 
 
 @rpc

@@ -67,7 +67,7 @@ func _process(delta):
 			_on_end_move_pressed()
 	
 	
-	if turnStage == TURNSTAGE.TILE:
+	if turnStage == TURNSTAGE.TILE && board.spareTile != null:
 		var pos : Vector2i = board.spareTile.pos.round()
 		if Input.is_action_just_pressed("up"):
 			if pos.y == 7 && pos.x != -1 && pos.x != 7:
@@ -204,8 +204,11 @@ func _on_join_board_pressed(boardID):
 
 
 func startGame():
+	print("starting game")
 	currentPlayer = players[0]
 	board.generateMap()
+	loadServerTiles()
+	loadServerPlayers()
 	
 	for i in players.size():
 		var playerStart : Vector2
@@ -269,6 +272,7 @@ func movePlayer(dir : Vector2):
 	var nextTile = board.getTile(currentPlayer.tile.pos + dir)
 	if currTile != null && nextTile != null && currTile.canMoveThrough(dir) && nextTile.canMoveThrough(-dir):
 		currentPlayer.tile = nextTile
+		updateServerPlayers()
 
 
 
@@ -277,9 +281,6 @@ func _on_push_pressed():
 			board.getArrow(board.spareTile.pos).visible == true:
 		
 		board.push()
-		for arrow in board.arrows:
-			arrow.visible = true
-		board.getArrow(board.spareTile.pos).visible = false
 		setupMovePlayer()
 
 
@@ -310,11 +311,18 @@ func loadServerPlayers():
 		playerNames.append(player.name)
 		playerOwnedClients.append(player.ownedClientID)
 	
-	serverLoadPlayers(playerNames, playerOwnedClients)
+	serverLoadPlayers.rpc_id(1, boardNum, playerNames, playerOwnedClients)
 
 
 func loadServerTiles():
-	pass
+	var tileTypes : Array
+	var tileItems : Array
+	
+	for tile in board.tiles:
+		tileTypes.append(tile.type)
+		tileItems.append(tile.item)
+	
+	serverLoadTiles.rpc_id(1, boardNum, tileTypes, tileItems)
 
 
 func startServerGame():
@@ -348,33 +356,46 @@ func updateServerPlayers():
 
 @rpc("any_peer", "call_local")
 func serverCreateNewGame(peerID : int):
+	if !is_multiplayer_authority():
+		return
 	pass
 
 
 @rpc("any_peer", "call_local")
 func serverClientJoinGame(boardNum : int, peerID : int):
+	if !is_multiplayer_authority():
+		return
 	pass
 
 
 @rpc("any_peer", "call_local")
 func serverLoadTiles(boardNum, tileTypes, tileItems):
+	if !is_multiplayer_authority():
+		return
 	clientLoadTiles.rpc(tileTypes, tileItems)
 
 @rpc("any_peer", "call_local")
-func serverLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+func serverLoadPlayers(boardNum, playerNames : Array, playerOwnedClients : Array):
+	if !is_multiplayer_authority():
+		return
 	clientLoadPlayers.rpc(playerNames, playerOwnedClients)
 
 @rpc("any_peer", "call_local")
 func serverStartGame(boardNum : int):
-	if is_multiplayer_authority():
-		clientStartGame.rpc()
+	if !is_multiplayer_authority():
+		return
+	clientStartGame.rpc()
 
 @rpc("any_peer", "call_local")
 func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileID):
-	clientUpdateTiles(tilePositions, tileRotations, spareTileID)
+	if !is_multiplayer_authority():
+		return
+	clientUpdateTiles.rpc(tilePositions, tileRotations, spareTileID)
 
 @rpc("any_peer", "call_local")
 func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, newCurPlayerNum : int):
+	if !is_multiplayer_authority():
+		return
 	clientUpdatePlayers.rpc(playerPositions, playersNeededItems, newCurPlayerNum)
 
 
@@ -385,11 +406,12 @@ func clientLoadBoardList(boardIDs : Array):
 		var button := JoinBoardButton.new()
 		button.id = boardID
 		button.pressedWithID.connect(_on_join_board_pressed)
-		$MainMenu/BoardList/BoardList/VScrollBar.add_child(button)
+		$MainMenu/BoardList/BoardList.add_child(button)
 
 
 @rpc("call_local")
 func clientLoadTiles(tileTypes, tileItems):
+	print("clientLoadTiles")
 	board.loadTiles(tileTypes, tileItems)
 
 
@@ -406,6 +428,7 @@ func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
 
 @rpc("call_local")
 func clientStartGame():
+	print("Starting Game")
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer.visible = true
@@ -415,12 +438,12 @@ func clientStartGame():
 
 
 @rpc("call_local")
-func clientUpdateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
+func clientUpdateTiles(tilePositions, tileRotations : Array, spareTileNum : int, disabledArrowPos : Vector2):
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
 
 
 @rpc("call_local")
-func clientUpdatePlayers(playerPositions, playerNeededItems, newCurPlayerNum):
+func clientUpdatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):
 	currentPlayer = players[newCurPlayerNum]
 	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
 	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
@@ -428,6 +451,8 @@ func clientUpdatePlayers(playerPositions, playerNeededItems, newCurPlayerNum):
 	for i in players.size():
 		var player := players[i]
 		player.tile = board.getTile(playerPositions[i])
-		player.neededItems = playerNeededItems[i]
+		player.neededItems.clear()
+		for item in playersNeededItems[i]:
+			player.neededItems.append(item)
 
 

@@ -125,7 +125,6 @@ func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : in
 		spareTile.isSpare = false
 	spareTile = tiles[spareTileNum]
 	spareTile.isSpare = true
-	checkPlayersOffBoard()
 
 
 
@@ -156,8 +155,11 @@ func push():
 			continue
 	spareTile.isSpare = true
 	
+	disableArrow(spareTile.pos)
+	
 	checkPlayersOffBoard()
 	main.updateServerTiles()
+	main.updateServerPlayers()
 
 
 func getTileLine(lineNum : int, rowCol) -> Array:
@@ -195,6 +197,13 @@ func checkPlayersOffBoard():
 func arrowPressed(pos):
 	if main.isCurrentClient && main.turnStage == Main.TURNSTAGE.TILE:
 		moveSpareTile(pos)
+
+
+func disableArrow(pos : Vector2):
+	for arrow in arrows:
+		arrow.visible = true
+	getArrow(pos).visible = false
+	disabledArrowPos = pos
 
 
 func moveSpareTile(pos : Vector2):
