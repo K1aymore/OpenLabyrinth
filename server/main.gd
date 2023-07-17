@@ -63,6 +63,7 @@ func serverCreateNewGame(peerID : int):
 func serverClientJoinGame(gameNum : int, peerID : int):
 	if gameNum < games.size():
 		games[gameNum].peerIDs.append(peerID)
+		clientSetBoardID.rpc_id(peerID, gameNum)
 
 
 @rpc("any_peer")
@@ -96,9 +97,12 @@ func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, ne
 
 
 @rpc
-func clientLoadBoardIDs(boardIDs):
+func clientSetBoardID(boardID):
 	pass
 
+@rpc
+func clientLoadBoardIDs(boardIDs):
+	pass
 
 @rpc
 func clientLoadTiles():

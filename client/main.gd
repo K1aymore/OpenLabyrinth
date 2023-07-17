@@ -195,9 +195,6 @@ func _on_create_new_board_pressed():
 
 
 func _on_join_board_pressed(boardID):
-	if $MainMenu/BoardList/VBoxContainer/PlayerName.text == "":
-		return
-	
 	serverClientJoinGame.rpc_id(1, boardID, multiplayer.get_unique_id())
 	$MainMenu/BoardList.visible = false
 	$MainMenu/LocalSetup.visible = true
@@ -400,7 +397,12 @@ func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, ne
 
 
 @rpc
-func clientLoadBoardList(boardIDs : Array):
+func clientSetBoardID(num : int):
+	boardNum = num
+
+
+@rpc
+func clientLoadBoardIDs(boardIDs : Array):
 	for boardID in boardIDs:
 		var button := JoinBoardButton.new()
 		button.id = boardID
