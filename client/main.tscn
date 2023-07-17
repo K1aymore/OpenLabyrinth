@@ -17,6 +17,7 @@ script = ExtResource("1_ilq0h")
 metadata/_edit_lock_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -70,7 +71,7 @@ stretch = true
 disable_3d = true
 handle_input_locally = false
 size = Vector2i(576, 576)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Board" parent="HBoxContainer/SubViewportContainer/SubViewport" instance=ExtResource("1_hmrev")]
 process_mode = 1
@@ -105,13 +106,75 @@ layout_mode = 2
 text = "Current Player: "
 
 [node name="MainMenu" type="Panel" parent="."]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="BoardList" type="Control" parent="MainMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BoardList" type="VBoxContainer" parent="MainMenu/BoardList"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -294.0
+offset_top = -295.0
+offset_right = 315.0
+offset_bottom = 292.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="MainMenu/BoardList/BoardList"]
+layout_mode = 2
+text = "Open Boards:"
+
+[node name="VScrollBar" type="VScrollBar" parent="MainMenu/BoardList/BoardList"]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu/BoardList"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -227.0
+offset_top = -152.0
+offset_right = -78.0
+offset_bottom = -74.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="PlayerName" type="LineEdit" parent="MainMenu/BoardList/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Player Name"
+
+[node name="CreateNewBoard" type="Button" parent="MainMenu/BoardList/VBoxContainer"]
+layout_mode = 2
+text = "Create New Board"
+
+[node name="PlayerList" type="Label" parent="MainMenu"]
+visible = false
+layout_mode = 2
+offset_left = 921.0
+offset_top = 241.0
+offset_right = 1153.0
+offset_bottom = 267.0
+text = "Current Players:"
 
 [node name="LocalSetup" type="VBoxContainer" parent="MainMenu"]
 visible = false
@@ -121,10 +184,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+offset_left = -116.0
+offset_top = -39.0
+offset_right = 116.0
+offset_bottom = 39.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -134,7 +197,7 @@ layout_mode = 2
 [node name="AddPlayer" type="Button" parent="MainMenu/LocalSetup/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Add Player"
+text = "Add Local Player"
 
 [node name="PlayerName" type="LineEdit" parent="MainMenu/LocalSetup/HBoxContainer"]
 custom_minimum_size = Vector2(125, 0)
@@ -147,25 +210,18 @@ layout_mode = 2
 size_flags_vertical = 4
 text = "Start Game"
 
-[node name="PlayerList" type="Label" parent="MainMenu"]
-layout_mode = 2
-offset_left = 921.0
-offset_top = 241.0
-offset_right = 1153.0
-offset_bottom = 267.0
-text = "Current Players:"
-
 [node name="MainMenu" type="VBoxContainer" parent="MainMenu"]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -97.5
-offset_top = -21.5
-offset_right = 97.5
-offset_bottom = 21.5
+offset_left = -119.0
+offset_top = -62.5
+offset_right = 119.0
+offset_bottom = 62.5
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -189,9 +245,8 @@ placeholder_text = "Port"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 2
-size_flags_horizontal = 0
 
-[node name="Client" type="Button" parent="MainMenu/MainMenu/HBoxContainer2"]
+[node name="ConnectClient" type="Button" parent="MainMenu/MainMenu/HBoxContainer2"]
 layout_mode = 2
 text = "Connect"
 
@@ -211,8 +266,9 @@ caret_blink = true
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Push" to="." method="_on_push_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Rotate" to="." method="_on_rotate_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/EndMove" to="." method="_on_end_move_pressed"]
+[connection signal="pressed" from="MainMenu/BoardList/VBoxContainer/CreateNewBoard" to="." method="_on_create_new_board_pressed"]
 [connection signal="pressed" from="MainMenu/LocalSetup/HBoxContainer/AddPlayer" to="." method="_on_add_player_pressed"]
 [connection signal="pressed" from="MainMenu/LocalSetup/StartGame" to="." method="_on_start_game_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer3/StartLan" to="." method="_on_start_lan_pressed"]
-[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/Client" to="." method="_on_client_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/ConnectClient" to="." method="_on_client_pressed"]

@@ -32,6 +32,7 @@ func _ready():
 func playerConnected(peerID : int):
 	await get_tree().create_timer(1).timeout
 	print(str(peerID) + " connected")
+	clientLoadBoardIDs.rpc_id(peerID, games)
 
 
 func playerDisconnected(peerID : int):
@@ -43,10 +44,10 @@ func playerDisconnected(peerID : int):
 
 
 @rpc("any_peer")
-func serverHostNewGame(peerID : int):
+func serverCreateNewGame(peerID : int):
 	var newGame = Game.new()
-	newGame.peerIDs.append(peerID)
 	games.append(newGame)
+	serverClientJoinGame(games.size()-1, peerID)
 
 
 @rpc("any_peer")
@@ -61,8 +62,8 @@ func serverLoadTiles(boardNum, tileTypes, tileItems):
 
 
 @rpc("any_peer")
-func serverLoadPlayers():
-	pass
+func serverLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+	clientLoadPlayers.rpc(playerNames, playerOwnedClients)
 
 
 @rpc("any_peer")
@@ -82,6 +83,10 @@ func serverUpdatePlayers(boardNum : int, player1Items, player2Items, player3Item
 	for peerID in games[boardNum].peerIDs:
 		clientUpdatePlayers.rpc_id(peerID, player1Items, player2Items, player3Items, player4Items)
 
+
+@rpc
+func clientLoadBoardIDs(boardIDs):
+	pass
 
 
 @rpc

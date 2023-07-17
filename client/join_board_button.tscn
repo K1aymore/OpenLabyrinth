@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://qil1wo8hc1d0"]
+
+[ext_resource type="Script" path="res://join_board_button.gd" id="1_swbrj"]
+
+[node name="JoinBoardButton" type="Button"]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_swbrj")

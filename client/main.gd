@@ -36,6 +36,7 @@ func _ready():
 	$MainMenu/MainMenu.visible = true
 	$HBoxContainer/Panel/GameActions.visible = false
 	$MainMenu/LocalSetup.visible = false
+	$MainMenu/BoardList.visible = false
 	board.main = self
 	
 
@@ -110,6 +111,7 @@ func _on_add_player_pressed():
 	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
 	addPlayer(text, multiplayer.get_unique_id())
 	$MainMenu/LocalSetup/HBoxContainer/PlayerName.text = ""
+	loadServerPlayers()
 
 
 func addPlayer(name : String, clientID : int):
@@ -147,12 +149,12 @@ func _on_start_lan_pressed():
 
 func lanPlayerConnected(peerID : int):
 	await get_tree().create_timer(1).timeout
-	updateServerPlayers()
+	loadServerPlayers()
 
 
 func lanPlayerDisconnected(peerID : int):
 	await get_tree().create_timer(1).timeout
-	updateServerPlayers()
+	loadServerPlayers()
 
 
 
@@ -165,19 +167,40 @@ func _on_client_pressed():
 	multiplayer.multiplayer_peer = peer
 	multiplayer.connected_to_server.connect(connectSuccess)
 	
+	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = true
+	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connecting..."
+	
 	await get_tree().create_timer(2).timeout
 	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		peer.close()
 		multiplayer.multiplayer_peer = null
 		print("couldn't connect in 2 secs")
+		$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = false
+		$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connect"
 
 
 func connectSuccess():
 	print("Connected to server")
+	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = false
+	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connect"
 	$MainMenu/MainMenu.visible = false
 	$MainMenu/LocalSetup.visible = false
-	serverClientJoinGame.rpc_id(1, boardNum, multiplayer.get_unique_id())
+	$MainMenu/BoardList.visible = true
+
+
+func _on_create_new_board_pressed():
+	serverCreateNewGame.rpc_id(1, multiplayer.get_unique_id())
+	$MainMenu/BoardList.visible = false
+	$MainMenu/LocalSetup.visible = true
+
+
+func _on_join_board_pressed(boardID):
+	if $MainMenu/BoardList/VBoxContainer/PlayerName.text == "":
+		return
 	
+	serverClientJoinGame.rpc_id(1, boardID, multiplayer.get_unique_id())
+	$MainMenu/BoardList.visible = false
+	$MainMenu/LocalSetup.visible = true
 
 
 func startGame():
@@ -279,6 +302,21 @@ func _on_end_move_pressed():
 func h():
 	pass
 
+func loadServerPlayers():
+	var playerNames : Array
+	var playerOwnedClients : Array
+	
+	for player in players:
+		playerNames.append(player.name)
+		playerOwnedClients.append(player.ownedClientID)
+	
+	serverLoadPlayers(playerNames, playerOwnedClients)
+
+
+func loadServerTiles():
+	pass
+
+
 func startServerGame():
 	print(multiplayer.get_unique_id())
 	serverStartGame.rpc_id(1, boardNum)
@@ -309,8 +347,9 @@ func updateServerPlayers():
 
 
 @rpc("any_peer", "call_local")
-func serverHostNewGame(peerID : int):
+func serverCreateNewGame(peerID : int):
 	pass
+
 
 @rpc("any_peer", "call_local")
 func serverClientJoinGame(boardNum : int, peerID : int):
@@ -322,8 +361,8 @@ func serverLoadTiles(boardNum, tileTypes, tileItems):
 	clientLoadTiles.rpc(tileTypes, tileItems)
 
 @rpc("any_peer", "call_local")
-func serverLoadPlayers():
-	pass
+func serverLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+	clientLoadPlayers.rpc(playerNames, playerOwnedClients)
 
 @rpc("any_peer", "call_local")
 func serverStartGame(boardNum : int):
@@ -340,6 +379,14 @@ func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, ne
 
 
 
+@rpc
+func clientLoadBoardList(boardIDs : Array):
+	for boardID in boardIDs:
+		var button := JoinBoardButton.new()
+		button.id = boardID
+		button.pressedWithID.connect(_on_join_board_pressed)
+		$MainMenu/BoardList/BoardList/VScrollBar.add_child(button)
+
 
 @rpc("call_local")
 func clientLoadTiles(tileTypes, tileItems):
@@ -348,6 +395,11 @@ func clientLoadTiles(tileTypes, tileItems):
 
 @rpc("call_local")
 func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+	players.clear()
+	for child in $HBoxContainer/Panel2/PlayersList.get_children():
+		if child is PlayerDisplay:
+			child.queue_free()
+	
 	for i in playerNames.size():
 		addPlayer(playerNames[i], playerOwnedClients[i])
 
@@ -377,3 +429,5 @@ func clientUpdatePlayers(playerPositions, playerNeededItems, newCurPlayerNum):
 		var player := players[i]
 		player.tile = board.getTile(playerPositions[i])
 		player.neededItems = playerNeededItems[i]
+
+
