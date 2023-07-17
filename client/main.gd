@@ -338,7 +338,7 @@ func updateServerTiles():
 		tilePositions.append(tile.pos)
 		tileRotations.append(tile.rot)
 	
-	serverUpdateTiles.rpc_id(1, boardNum, tilePositions, tileRotations, board.tiles.find(board.spareTile))
+	serverUpdateTiles.rpc_id(1, boardNum, tilePositions, tileRotations, board.tiles.find(board.spareTile), board.disabledArrowPos)
 
 
 func updateServerPlayers():
@@ -387,10 +387,10 @@ func serverStartGame(boardNum : int):
 	clientStartGame.rpc()
 
 @rpc("any_peer", "call_local")
-func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileID):
+func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileID, disabledArrowPos):
 	if !is_multiplayer_authority():
 		return
-	clientUpdateTiles.rpc(tilePositions, tileRotations, spareTileID)
+	clientUpdateTiles.rpc(tilePositions, tileRotations, spareTileID, disabledArrowPos)
 
 @rpc("any_peer", "call_local")
 func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, newCurPlayerNum : int):
