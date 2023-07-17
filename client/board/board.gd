@@ -56,38 +56,111 @@ func _ready():
 
 
 func generateMap():
-	for vertNum in range(0, 7):
-		for horzNum in range(0, 7):
-			var newTile : Tile
+	var itemList : Array[Tile.ITEM]
+	for item in Tile.ITEM.values():
+		itemList.append(item)
+	
+	itemList.erase(Tile.ITEM.NONE)
+	itemList.shuffle()
+	
+	var newTile : Tile
+	
+	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+	newTile.pos = Vector2(0, 0)
+	newTile.rot = 90
+	newTile.color = Tile.COLOR.BLUE
+	
+	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+	newTile.pos = Vector2(6, 0)
+	newTile.rot = 180
+	newTile.color = Tile.COLOR.YELLOW
+	
+	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+	newTile.pos = Vector2(0, 6)
+	newTile.rot = 0
+	newTile.color = Tile.COLOR.GREEN
+	
+	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
+	newTile.pos = Vector2(6, 6)
+	newTile.rot = 270
+	newTile.color = Tile.COLOR.RED
+	
+	
+	for vertNum in [0, 2, 4, 6]:
+		for horzNum in [0, 2, 4, 6]:
 			match Vector2(horzNum, vertNum):
-				Vector2(0, 0):
-					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
-					newTile.color = Tile.COLOR.BLUE
+				Vector2(0, 2):
+					newTile = addSolidTile(itemList)
+				Vector2(0, 4):
+					newTile = addSolidTile(itemList)
+				Vector2(2, 0):
+					newTile = addSolidTile(itemList)
 					newTile.rot = 90
-				Vector2(6, 0):
-					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
-					newTile.color = Tile.COLOR.YELLOW
+				Vector2(4, 0):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 90
+				Vector2(2, 6):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 270
+				Vector2(4, 6):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 270
+				Vector2(6, 2):
+					newTile = addSolidTile(itemList)
 					newTile.rot = 180
-				Vector2(0, 6):
-					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
-					newTile.color = Tile.COLOR.GREEN
-					newTile.rot = 0
-				Vector2(6, 6):
-					newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
-					newTile.color = Tile.COLOR.RED
+				Vector2(6, 4):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 180
+				
+				Vector2(2, 2):
+					newTile = addSolidTile(itemList)
+				Vector2(4, 2):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 90
+				Vector2(4, 4):
+					newTile = addSolidTile(itemList)
+					newTile.rot = 180
+				Vector2(2, 4):
+					newTile = addSolidTile(itemList)
 					newTile.rot = 270
 				_:
-					newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), randi_range(0, Tile.ITEM.size()-1))
-					newTile.rot = randi_range(0, 3) * 90
+					continue
 			
 			newTile.pos = Vector2(horzNum, vertNum)
+	
+	
+	for vertNum in range(0, 7):
+		for horzNum in range(0, 7):
+			if getTile(Vector2(horzNum, vertNum)) != null:
+				continue
+			
+			newTile = addNewTile(randi_range(0, Tile.TYPE.size()-1), Tile.ITEM.NONE)
+			newTile.rot = randi_range(0, 3) * 90
+			newTile.pos = Vector2(horzNum, vertNum)
+	
+	
+	while itemList.size() > 0:
+		var tile : Tile = tiles.pick_random()
+		
+		while !(tile.item == Tile.ITEM.NONE && tile.color == Tile.COLOR.NONE):
+			tile = tiles.pick_random()
+		
+		tile.item = itemList.pop_back()
 	
 	spareTile = addNewTile(Tile.TYPE.STRAIGHT, 0)
 	spareTile.pos = Vector2(3, -1)
 	spareTile.isSpare = true
 
 
-func addNewTile(type : Tile.TYPE, item : Tile.ITEM) -> Tile:
+
+func addSolidTile(itemList : Array[Tile.ITEM]) -> Tile:
+	return addNewTile(Tile.TYPE.TSHAPE, itemList.pop_back())
+
+
+func addNewTile(type : Tile.TYPE, item) -> Tile:
+	if item == null || !(item is Tile.ITEM):
+		item = Tile.ITEM.NONE
+	
 	var newTile := Tile.new()
 	newTile.type = type
 	newTile.item = item
