@@ -322,12 +322,10 @@ func loadServerTiles():
 		tileTypes.append(tile.type)
 		tileItems.append(tile.item)
 	
-	print(tileItems)
 	serverLoadTiles.rpc_id(1, boardNum, tileTypes, tileItems)
 
 
 func startServerGame():
-	print(multiplayer.get_unique_id())
 	serverStartGame.rpc_id(1, boardNum)
 
 
@@ -412,7 +410,6 @@ func clientLoadBoardList(boardIDs : Array):
 
 @rpc("call_local")
 func clientLoadTiles(tileTypes, tileItems):
-	print("clientLoadTiles")
 	board.loadTiles(tileTypes, tileItems)
 
 
@@ -429,7 +426,6 @@ func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
 
 @rpc("call_local")
 func clientStartGame():
-	print("Starting Game")
 	get_tree().paused = false
 	$MainMenu.visible = false
 	$HBoxContainer.visible = true
