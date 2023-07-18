@@ -123,3 +123,16 @@ func clientUpdateTiles():
 @rpc
 func clientUpdatePlayers():
 	pass
+
+
+
+
+
+@rpc("any_peer")
+func serverCall(boardNum, methodName, args):
+	callFromServer.rpc(methodName, args)
+
+
+@rpc
+func callFromServer(methodName, args):
+	pass

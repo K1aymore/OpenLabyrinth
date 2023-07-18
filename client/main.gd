@@ -2,13 +2,8 @@ extends Control
 
 class_name Main
 
-const DEFAULTIP = "localhost"
-const DEFAULTPORT = 4433
 
-@onready var board : Board = $HBoxContainer/SubViewportContainer/SubViewport/Board
-
-@onready var connectIP : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectIP
-@onready var connectPort : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectPort
+@export var board : Board
 
 const MAX_PLAYERS = 4
 
@@ -99,10 +94,6 @@ func _process(delta):
 			_on_push_pressed()
 
 
-func _on_start_local_pressed():
-	$MainMenu/MainMenu.visible = false
-	$MainMenu/LocalSetup.visible = true
-
 
 func _on_add_player_pressed():
 	if players.size() >= MAX_PLAYERS:
@@ -127,65 +118,6 @@ func addPlayer(name : String, clientID : int):
 	$HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
 	$MainMenu/PlayerList.text = getPlayerList()
 
-
-# start local game
-func _on_start_game_pressed():
-	startGame()
-
-
-func _on_start_lan_pressed():
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_server(DEFAULTPORT)
-	
-	if peer.get_connection_status() == MultiplayerPeer.CONNECTION_DISCONNECTED:
-		print("Failed to start multiplayer server.")
-		return
-	
-	multiplayer.multiplayer_peer = peer
-	peer.peer_connected.connect(lanPlayerConnected)
-	peer.peer_disconnected.connect(lanPlayerDisconnected)
-
-
-
-func lanPlayerConnected(peerID : int):
-	await get_tree().create_timer(1).timeout
-	loadServerPlayers()
-
-
-func lanPlayerDisconnected(peerID : int):
-	await get_tree().create_timer(1).timeout
-	loadServerPlayers()
-
-
-
-func _on_client_pressed():
-	var ip = connectIP.text if connectIP.text != "" else DEFAULTIP
-	var port = connectPort.text.to_int() if connectPort.text != "" else DEFAULTPORT
-	
-	var peer = ENetMultiplayerPeer.new()
-	peer.create_client(ip, port)
-	multiplayer.multiplayer_peer = peer
-	multiplayer.connected_to_server.connect(connectSuccess)
-	
-	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = true
-	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connecting..."
-	
-	await get_tree().create_timer(2).timeout
-	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
-		peer.close()
-		multiplayer.multiplayer_peer = null
-		print("couldn't connect in 2 secs")
-		$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = false
-		$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connect"
-
-
-func connectSuccess():
-	print("Connected to server")
-	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.disabled = false
-	$MainMenu/MainMenu/HBoxContainer2/ConnectClient.text = "Connect"
-	$MainMenu/MainMenu.visible = false
-	$MainMenu/LocalSetup.visible = false
-	$MainMenu/BoardList.visible = true
 
 
 func _on_create_new_board_pressed():

@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=6 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
 [ext_resource type="Theme" uid="uid://m0mh33vr88g5" path="res://new_theme.tres" id="3_rvth5"]
+[ext_resource type="Script" path="res://MainMenu.gd" id="4_4yaiy"]
+[ext_resource type="Script" path="res://Network.gd" id="5_4euey"]
 
 [node name="Main" type="Control"]
 process_mode = 3
@@ -105,15 +107,20 @@ theme_override_constants/separation = 4
 layout_mode = 2
 text = "Current Player: "
 
-[node name="MainMenu" type="Panel" parent="."]
+[node name="MainMenu" type="Panel" parent="." node_paths=PackedStringArray("main", "board", "network")]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_4yaiy")
+main = NodePath("..")
+board = NodePath("../HBoxContainer/SubViewportContainer/SubViewport/Board")
+network = NodePath("../Network")
 
 [node name="BoardList" type="Control" parent="MainMenu"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -161,50 +168,72 @@ placeholder_text = "Player Name"
 layout_mode = 2
 text = "Create New Board"
 
-[node name="PlayerList" type="Label" parent="MainMenu"]
-layout_mode = 2
-offset_left = 921.0
-offset_top = 241.0
-offset_right = 1153.0
-offset_bottom = 267.0
-text = "Current Players:"
-
-[node name="LocalSetup" type="VBoxContainer" parent="MainMenu"]
+[node name="LocalSetup" type="Control" parent="MainMenu"]
 visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu" type="VBoxContainer" parent="MainMenu/LocalSetup"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -116.0
+offset_left = -138.5
 offset_top = -39.0
-offset_right = 116.0
+offset_right = 138.5
 offset_bottom = 39.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/LocalSetup"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/LocalSetup/Menu"]
 layout_mode = 2
 
-[node name="AddPlayer" type="Button" parent="MainMenu/LocalSetup/HBoxContainer"]
+[node name="AddPlayer" type="Button" parent="MainMenu/LocalSetup/Menu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Add Local Player"
 
-[node name="PlayerName" type="LineEdit" parent="MainMenu/LocalSetup/HBoxContainer"]
+[node name="PlayerName" type="LineEdit" parent="MainMenu/LocalSetup/Menu/HBoxContainer"]
 custom_minimum_size = Vector2(125, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 placeholder_text = "Player Name"
 
-[node name="StartGame" type="Button" parent="MainMenu/LocalSetup"]
+[node name="StartGame" type="Button" parent="MainMenu/LocalSetup/Menu"]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Start Game"
 
-[node name="MainMenu" type="VBoxContainer" parent="MainMenu"]
-visible = false
+[node name="PlayerList" type="Label" parent="MainMenu/LocalSetup"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -359.0
+offset_top = -93.0
+offset_right = -127.0
+offset_bottom = -67.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "Current Players:"
+
+[node name="MainMenu" type="Control" parent="MainMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Buttons" type="VBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -218,50 +247,53 @@ offset_bottom = 62.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/MainMenu"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/MainMenu/Buttons"]
 layout_mode = 2
 
-[node name="StartLocal" type="Button" parent="MainMenu/MainMenu/HBoxContainer"]
+[node name="StartLocal" type="Button" parent="MainMenu/MainMenu/Buttons/HBoxContainer"]
 layout_mode = 2
 text = "Start Local Game"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="MainMenu/MainMenu"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="MainMenu/MainMenu/Buttons"]
 layout_mode = 2
 
-[node name="StartLan" type="Button" parent="MainMenu/MainMenu/HBoxContainer3"]
+[node name="StartLan" type="Button" parent="MainMenu/MainMenu/Buttons/HBoxContainer3"]
 layout_mode = 2
 text = "Start LAN Game"
 
-[node name="LineEdit" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer3"]
+[node name="LanPort" type="LineEdit" parent="MainMenu/MainMenu/Buttons/HBoxContainer3"]
 layout_mode = 2
 placeholder_text = "Port"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/MainMenu"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="MainMenu/MainMenu/Buttons"]
 layout_mode = 2
 
-[node name="ConnectClient" type="Button" parent="MainMenu/MainMenu/HBoxContainer2"]
+[node name="ConnectClient" type="Button" parent="MainMenu/MainMenu/Buttons/HBoxContainer2"]
 layout_mode = 2
 text = "Connect"
 
-[node name="ConnectIP" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer2"]
+[node name="ConnectIP" type="LineEdit" parent="MainMenu/MainMenu/Buttons/HBoxContainer2"]
 layout_mode = 2
 placeholder_text = "IP"
 expand_to_text_length = true
 caret_blink = true
 
-[node name="ConnectPort" type="LineEdit" parent="MainMenu/MainMenu/HBoxContainer2"]
+[node name="ConnectPort" type="LineEdit" parent="MainMenu/MainMenu/Buttons/HBoxContainer2"]
 layout_mode = 2
 placeholder_text = "Port"
 max_length = 5
 expand_to_text_length = true
 caret_blink = true
 
+[node name="Network" type="Node" parent="."]
+script = ExtResource("5_4euey")
+
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Push" to="." method="_on_push_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/Rotate" to="." method="_on_rotate_pressed"]
 [connection signal="pressed" from="HBoxContainer/Panel/GameActions/EndMove" to="." method="_on_end_move_pressed"]
-[connection signal="pressed" from="MainMenu/BoardList/VBoxContainer/CreateNewBoard" to="." method="_on_create_new_board_pressed"]
-[connection signal="pressed" from="MainMenu/LocalSetup/HBoxContainer/AddPlayer" to="." method="_on_add_player_pressed"]
-[connection signal="pressed" from="MainMenu/LocalSetup/StartGame" to="." method="_on_start_game_pressed"]
-[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer/StartLocal" to="." method="_on_start_local_pressed"]
-[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer3/StartLan" to="." method="_on_start_lan_pressed"]
-[connection signal="pressed" from="MainMenu/MainMenu/HBoxContainer2/ConnectClient" to="." method="_on_client_pressed"]
+[connection signal="pressed" from="MainMenu/BoardList/VBoxContainer/CreateNewBoard" to="MainMenu" method="_on_create_new_board_pressed"]
+[connection signal="pressed" from="MainMenu/LocalSetup/Menu/HBoxContainer/AddPlayer" to="MainMenu" method="_on_add_player_pressed"]
+[connection signal="pressed" from="MainMenu/LocalSetup/Menu/StartGame" to="MainMenu" method="_on_start_game_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer/StartLocal" to="MainMenu" method="_on_start_local_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer3/StartLan" to="MainMenu" method="_on_start_lan_pressed"]
+[connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer2/ConnectClient" to="MainMenu" method="_on_connect_client_pressed"]
