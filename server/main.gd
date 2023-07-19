@@ -40,7 +40,6 @@ func playerConnected(peerID : int):
 
 
 func playerDisconnected(peerID : int):
-	await get_tree().create_timer(1).timeout
 	print(str(peerID) + " disconnected")
 	for boardName in boards.keys():
 		boards[boardName].peerIDs.erase(peerID)

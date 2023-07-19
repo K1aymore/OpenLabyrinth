@@ -151,6 +151,8 @@ func generateMap():
 	spareTile = addNewTile(Tile.TYPE.STRAIGHT, 0)
 	spareTile.pos = Vector2(3, -1)
 	spareTile.isSpare = true
+	
+	addTileSprites()
 
 
 
@@ -166,10 +168,14 @@ func addNewTile(type : Tile.TYPE, item) -> Tile:
 	newTile.type = type
 	newTile.item = item
 	tiles.append(newTile)
-	var newTileSprite := tileSpriteScene.instantiate()
-	newTileSprite.tile = newTile
-	add_child(newTileSprite)
 	return newTile
+
+
+func addTileSprites():
+	for tile in tiles:
+		var newTileSprite := tileSpriteScene.instantiate()
+		newTileSprite.tile = tile
+		add_child(newTileSprite)
 
 
 func addPlayerSprites():
@@ -187,6 +193,8 @@ func loadTiles(tileTypes : Array, tileItems : Array):
 	
 	for i in tileTypes.size():
 		addNewTile(tileTypes[i], tileItems[i])
+	
+	addTileSprites()
 
 
 func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):

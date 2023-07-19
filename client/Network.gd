@@ -13,15 +13,21 @@ const DEFAULTPORT = 4433
 
 @export var clientConnectButton : Button
 
+var isBoardLeader : bool
 
 var boardName : String
 
 
-
 func _ready():
+	setIsBoardLeader(false)
 	# You can save bandwidth by disabling server relay and peer notifications.
 	multiplayer.server_relay = false
 	get_tree().get_multiplayer().allow_object_decoding = false
+
+
+func setIsBoardLeader(value : bool):
+	isBoardLeader = value
+	$"../MainMenu/GameSetup/Menu/StartGame".disabled = !value
 
 
 func callClients(method : Callable, args : Array):
@@ -29,17 +35,14 @@ func callClients(method : Callable, args : Array):
 
 
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func serverCall(boardID, methodName, args):
-	pass
+	callFromServer.rpc(methodName, args)
 
 
-@rpc
+@rpc("call_local")
 func callFromServer(methodName, args):
 	main.callv(methodName, args)
-
-
-
 
 
 
@@ -127,9 +130,9 @@ func serverCreateNewBoard(peerID : int, boardName : String):
 	pass
 
 
-@rpc("any_peer")
+@rpc("any_peer", "call_local")
 func serverClientJoinBoard(peerID : int, boardName : String):
-	pass
+	main.joinBoard(boardName)
 
 
 func sendServerTiles():

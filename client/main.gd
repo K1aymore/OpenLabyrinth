@@ -101,7 +101,7 @@ func addPlayer(name : String, clientID : int):
 
 
 func startGame():
-	currentPlayer = players[0]
+	setCurrentPlayer(0)
 	board.generateMap()
 	network.sendServerTiles()
 	network.sendServerPlayers()
@@ -244,11 +244,15 @@ func updateServerPlayers():
 
 
 
-func setBoardName(str : String):
+func joinBoard(str : String):
 	network.boardName = str
+	mainMenu.setShownMenu($MainMenu/GameSetup)
 
 
 func loadTiles(tileTypes, tileItems):
+	if network.isBoardLeader:
+		return
+	
 	board.loadTiles(tileTypes, tileItems)
 
 
@@ -270,7 +274,7 @@ func updateSpareTile(tilePosition, tileRotation):
 	board.spareTile.rot = tileRotation
 
 
-func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):
+func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):	
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
 	board.disableArrow(disabledArrowPos)
 

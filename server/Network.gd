@@ -29,7 +29,7 @@ func serverCreateNewBoard(peerID : int, boardName : String):
 @rpc("any_peer")
 func serverClientJoinBoard(peerID : int, boardName : String):
 	main.boards[boardName].peerIDs.append(peerID)
-	callFromServer.rpc_id(peerID, "setBoardName", [boardName])
+	callFromServer.rpc_id(peerID, "joinBoard", [boardName])
 
 
 

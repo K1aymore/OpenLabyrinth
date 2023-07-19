@@ -25,10 +25,12 @@ func setShownMenu(menu : Node):
 
 
 func _on_start_local_pressed():
-	setShownMenu($GameSetup)
+	network.setIsBoardLeader(true)
+	main.joinBoard("local")
 
 
 func _on_start_lan_pressed():
+	network.setIsBoardLeader(true)
 	network.setupServer($MainMenu/Buttons/HBoxContainer3/LanPort.text)
 
 
@@ -62,8 +64,8 @@ func addBoardButtons(boardList : Array[String]):
 
 
 
-
 func _on_create_new_board_pressed():
+	network.setIsBoardLeader(true)
 	var boardNameEntry : LineEdit = $BoardList/VBoxContainer/BoardName
 	network.serverCreateNewBoard.rpc_id(1, multiplayer.get_unique_id(), boardNameEntry.text)
 	setShownMenu($GameSetup)
@@ -72,15 +74,11 @@ func _on_create_new_board_pressed():
 
 func _on_join_board_pressed(boardName):
 	network.serverClientJoinBoard.rpc_id(1, multiplayer.get_unique_id(), boardName)
-	setShownMenu($GameSetup)
-
-
 
 
 
 func _on_add_player_pressed():
 	var playerNameField : LineEdit = $GameSetup/Menu/HBoxContainer/PlayerName
-	var text : String = playerNameField.text
-	main.addPlayer(text, multiplayer.get_unique_id())
+	main.addPlayer(playerNameField.text, multiplayer.get_unique_id())
 	playerNameField.text = ""
 	network.sendServerPlayers()
