@@ -115,8 +115,8 @@ func recieveBoardList(boardList : Array):
 	
 	for str in boardList:
 		if str is String:
-			boardList.append(str)
-	boardList
+			typedBoardList.append(str)
+	
 	mainMenu.addBoardButtons(typedBoardList)
 
 
@@ -129,3 +129,27 @@ func serverCreateNewBoard(peerID : int, boardName : String):
 @rpc("any_peer")
 func serverClientJoinBoard(peerID : int, boardName : String):
 	pass
+
+
+
+
+func sendServerPlayers():
+	var playerNames : Array
+	var playerOwnedClients : Array
+	
+	for player in main.players:
+		playerNames.append(player.name)
+		playerOwnedClients.append(player.ownedClientID)
+	
+	callPeers(main.loadPlayers, [playerNames, playerOwnedClients])
+
+
+func sendServerTiles():
+	var tileTypes : Array
+	var tileItems : Array
+	
+	for tile in board.tiles:
+		tileTypes.append(tile.type)
+		tileItems.append(tile.item)
+	
+	callPeers(main.loadTiles, [tileTypes, tileItems])

@@ -1,10 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=7 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
 [ext_resource type="Theme" uid="uid://m0mh33vr88g5" path="res://new_theme.tres" id="3_rvth5"]
 [ext_resource type="Script" path="res://MainMenu.gd" id="4_4yaiy"]
 [ext_resource type="Script" path="res://Network.gd" id="5_4euey"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5upww"]
+bg_color = Color(0.0429, 0.0429, 0.11, 1)
 
 [node name="Main" type="Control"]
 process_mode = 3
@@ -19,18 +22,19 @@ script = ExtResource("1_ilq0h")
 metadata/_edit_lock_ = true
 
 [node name="Game" type="Panel" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Game"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 608.0
-offset_bottom = 536.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5upww")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Game"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -78,13 +82,15 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Game/HBoxContainer/SubViewportContainer"]
 disable_3d = true
+transparent_bg = true
 handle_input_locally = false
 size = Vector2i(576, 576)
-render_target_update_mode = 0
+render_target_update_mode = 4
 
-[node name="Board" parent="Game/HBoxContainer/SubViewportContainer/SubViewport" instance=ExtResource("1_hmrev")]
+[node name="Board" parent="Game/HBoxContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("main") instance=ExtResource("1_hmrev")]
 process_mode = 1
 position = Vector2(96, 96)
+main = NodePath("../../../../..")
 
 [node name="VSeparator2" type="VSeparator" parent="Game/HBoxContainer"]
 modulate = Color(1, 1, 1, 0)
@@ -115,6 +121,7 @@ layout_mode = 2
 text = "Current Player: "
 
 [node name="MainMenu" type="Panel" parent="." node_paths=PackedStringArray("main", "board", "network")]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -127,6 +134,7 @@ board = NodePath("../Game/HBoxContainer/SubViewportContainer/SubViewport/Board")
 network = NodePath("../Network")
 
 [node name="BoardList" type="Control" parent="MainMenu"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -240,7 +248,6 @@ grow_vertical = 2
 text = "Current Players:"
 
 [node name="MainMenu" type="Control" parent="MainMenu"]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

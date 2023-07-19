@@ -50,6 +50,10 @@ func _on_refresh_board_list_pressed():
 
 
 func addBoardButtons(boardList : Array[String]):
+	for child in $BoardList/BoardList.get_children():
+		if child is JoinBoardButton:
+			child.queue_free()
+	
 	for boardName in boardList:
 		var button := JoinBoardButton.new()
 		button.boardName = boardName
@@ -79,4 +83,4 @@ func _on_add_player_pressed():
 	var text : String = playerNameField.text
 	main.addPlayer(text, multiplayer.get_unique_id())
 	playerNameField.text = ""
-	network.loadServerPlayers()
+	network.sendServerPlayers()

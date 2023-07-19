@@ -103,8 +103,8 @@ func addPlayer(name : String, clientID : int):
 func startGame():
 	currentPlayer = players[0]
 	board.generateMap()
-	sendRemoteTiles()
-	sendRemotePlayers()
+	network.sendServerTiles()
+	network.sendServerPlayers()
 	
 	for i in players.size():
 		var playerStart : Vector2
@@ -130,14 +130,16 @@ func startGame():
 		for i in 24 / players.size():
 			player.neededItems.append(itemsList.pop_back())
 	
+	
 	updateServerTiles()
 	updateServerPlayers()
 	startServerGame()
-	
-	
+
+
+func switchToGame():
 	get_tree().paused = false
 	$MainMenu.visible = false
-	$HBoxContainer.visible = true
+	$Game.visible = true
 	$Game/HBoxContainer/Panel/GameActions.visible = true
 	$Game/HBoxContainer/Panel/GameActions/EndMove.disabled = true
 	board.addPlayerSprites()
@@ -214,30 +216,8 @@ func h():
 	pass
 
 
-func sendRemotePlayers():
-	var playerNames : Array
-	var playerOwnedClients : Array
-	
-	for player in players:
-		playerNames.append(player.name)
-		playerOwnedClients.append(player.ownedClientID)
-	
-	network.callPeers(loadPlayers, [playerNames, playerOwnedClients])
-
-
-func sendRemoteTiles():
-	var tileTypes : Array
-	var tileItems : Array
-	
-	for tile in board.tiles:
-		tileTypes.append(tile.type)
-		tileItems.append(tile.item)
-	
-	network.callPeers(loadTiles, [tileTypes, tileItems])
-
-
 func startServerGame():
-	network.callPeers(startGame, [])
+	network.callPeers(switchToGame, [])
 
 
 func updateServerTiles():
@@ -260,7 +240,7 @@ func updateServerPlayers():
 		playerPositions.append(player.tile.pos)
 		playersNeededItems.append(player.neededItems)
 	
-	network.callPeers(updatePlayers, [playersNeededItems, players.find(currentPlayer)])
+	network.callPeers(updatePlayers, [playerPositions, playersNeededItems, players.find(currentPlayer)])
 
 
 
