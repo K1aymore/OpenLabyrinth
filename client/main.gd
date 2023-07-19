@@ -134,9 +134,7 @@ func startGame():
 			player.neededItems.append(itemsList.pop_back())
 	
 	updateServerTiles()
-	print(players[0].neededItems)
 	updateServerPlayers()
-	print(players[0].neededItems)
 	startServerGame()
 
 
@@ -264,10 +262,7 @@ func loadTiles(tileTypes, tileItems):
 		board.loadTiles(tileTypes, tileItems)
 
 
-func loadPlayers(playerNames : Array, playerOwnedClients : Array):
-	if network.isBoardLeader:
-		return
-	
+func loadPlayers(playerNames : Array, playerOwnedClients : Array):	
 	players.clear()
 	for child in $Game/HBoxContainer/Panel2/PlayersList.get_children():
 		if child is PlayerDisplay:
