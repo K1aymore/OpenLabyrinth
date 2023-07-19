@@ -18,6 +18,7 @@ func _process(delta):
 		return
 	
 	$Label.text = player.name
+	$Label.modulate = player.colorColor * 1.5
 	$Label/Sprite2D.visible = player == main.currentPlayer
 	
 	

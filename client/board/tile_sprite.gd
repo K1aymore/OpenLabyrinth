@@ -54,6 +54,7 @@ func _ready():
 			push_error()
 	
 	itemSprite.texture = itemImages[tile.item]
+	
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

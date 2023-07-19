@@ -49,9 +49,9 @@ enum ITEM {
 enum COLOR {
 	NONE,
 	BLUE,
-	RED,
-	YELLOW,
 	GREEN,
+	YELLOW,
+	RED,
 }
 
 

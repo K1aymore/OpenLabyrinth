@@ -8,7 +8,10 @@ var player : Player
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	position = Vector2(3, 3) * Tile.TILESIZE
-	scale = Vector2(0.3, 0.3)
+	scale = Vector2(0.1, 0.1)
+	
+	self_modulate = player.colorColor
+
 
 func _process(delta):
 	if player == null || player.tile == null:

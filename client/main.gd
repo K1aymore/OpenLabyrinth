@@ -88,6 +88,9 @@ func _process(delta):
 
 
 func addPlayer(name : String, clientID : int):
+	if players.size() >= 4:
+		return
+	
 	var newPlayer := Player.new()
 	newPlayer.name = name if name != "" else str(randi())
 	newPlayer.ownedClientID = clientID
@@ -114,12 +117,21 @@ func startGame():
 		match i:
 			0:
 				playerStart = Vector2(0, 0)
+				players[i].color = Tile.COLOR.BLUE
+				players[i].colorColor = Color.DODGER_BLUE
 			1:
 				playerStart = Vector2(6, 0)
+				players[i].color = Tile.COLOR.GREEN
+				players[i].colorColor = Color.FOREST_GREEN
 			2:
 				playerStart = Vector2(0, 6)
+				players[i].color = Tile.COLOR.YELLOW
+				players[i].colorColor = Color.GOLD
 			3:
 				playerStart = Vector2(6, 6)
+				players[i].color = Tile.COLOR.RED
+				players[i].colorColor = Color.RED
+		
 		var startTile := board.getTile(playerStart)
 		players[i].tile = startTile
 		players[i].homeTile = startTile

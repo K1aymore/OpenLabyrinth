@@ -2,6 +2,8 @@ class_name Player
 
 var tile : Tile
 var name : String
+var color : Tile.COLOR
+var colorColor : Color
 var homeTile : Tile
 var ownedClientID : int
 var neededItems : Array[Tile.ITEM]
