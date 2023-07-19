@@ -7,14 +7,13 @@ class_name Network
 
 
 @rpc("any_peer")
-func serverCall(boardNum, methodName, args):
+func serverCall(boardName, methodName, args):
 	callFromServer.rpc(methodName, args)
 
 
 @rpc
 func callFromServer(methodName, args : Array):
 	pass
-
 
 
 

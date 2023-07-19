@@ -3,6 +3,7 @@ extends Node2D
 class_name Board
 
 @export var main : Main
+@export var network : Network
 
 var tileScene := preload("res://board/tile.tscn")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")
@@ -289,13 +290,13 @@ func moveSpareTile(pos : Vector2):
 			pos == Vector2(-1,7) || pos == Vector2(7, 7):
 		
 		spareTile.pos = pos
-		main.updateServerTiles()
+		network.callClients(main.updateSpareTile, [spareTile.pos, spareTile.rot])
 
 
 
 func rotateSpareTile():
 	spareTile.rot = snappedi(spareTile.rot + 90, 90)
-	main.updateServerTiles()
+	network.callClients(main.updateSpareTile, [spareTile.pos, spareTile.rot])
 
 
 

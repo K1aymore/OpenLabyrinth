@@ -217,7 +217,7 @@ func h():
 
 
 func startServerGame():
-	network.callPeers(switchToGame, [])
+	network.callClients(switchToGame, [])
 
 
 func updateServerTiles():
@@ -228,7 +228,7 @@ func updateServerTiles():
 		tilePositions.append(tile.pos)
 		tileRotations.append(tile.rot)
 	
-	network.callPeers(updateTiles, [tilePositions, tileRotations, board.tiles.find(board.spareTile), board.disabledArrowPos])
+	network.callClients(updateTiles, [tilePositions, tileRotations, board.tiles.find(board.spareTile), board.disabledArrowPos])
 
 
 func updateServerPlayers():
@@ -240,7 +240,7 @@ func updateServerPlayers():
 		playerPositions.append(player.tile.pos)
 		playersNeededItems.append(player.neededItems)
 	
-	network.callPeers(updatePlayers, [playerPositions, playersNeededItems, players.find(currentPlayer)])
+	network.callClients(updatePlayers, [playerPositions, playersNeededItems, players.find(currentPlayer)])
 
 
 
@@ -262,11 +262,18 @@ func loadPlayers(playerNames : Array, playerOwnedClients : Array):
 		addPlayer(playerNames[i], playerOwnedClients[i])
 
 
+func updateSpareTile(tilePosition, tileRotation):
+	if isCurrentClient:
+		return
+	
+	board.spareTile.pos = tilePosition
+	board.spareTile.rot = tileRotation
+
 
 func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
 	board.disableArrow(disabledArrowPos)
-	
+
 
 
 func updatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):

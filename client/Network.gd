@@ -24,19 +24,20 @@ func _ready():
 	get_tree().get_multiplayer().allow_object_decoding = false
 
 
-
-
-func callPeers(method : Callable, args : Array):
+func callClients(method : Callable, args : Array):
 	serverCall.rpc_id(1, boardName, method.get_method(), args)
+
 
 
 @rpc("any_peer")
 func serverCall(boardID, methodName, args):
 	pass
 
+
 @rpc
 func callFromServer(methodName, args):
 	main.callv(methodName, args)
+
 
 
 
@@ -131,6 +132,16 @@ func serverClientJoinBoard(peerID : int, boardName : String):
 	pass
 
 
+func sendServerTiles():
+	var tileTypes : Array
+	var tileItems : Array
+	
+	for tile in board.tiles:
+		tileTypes.append(tile.type)
+		tileItems.append(tile.item)
+	
+	callClients(main.loadTiles, [tileTypes, tileItems])
+
 
 
 func sendServerPlayers():
@@ -141,15 +152,5 @@ func sendServerPlayers():
 		playerNames.append(player.name)
 		playerOwnedClients.append(player.ownedClientID)
 	
-	callPeers(main.loadPlayers, [playerNames, playerOwnedClients])
+	callClients(main.loadPlayers, [playerNames, playerOwnedClients])
 
-
-func sendServerTiles():
-	var tileTypes : Array
-	var tileItems : Array
-	
-	for tile in board.tiles:
-		tileTypes.append(tile.type)
-		tileItems.append(tile.item)
-	
-	callPeers(main.loadTiles, [tileTypes, tileItems])

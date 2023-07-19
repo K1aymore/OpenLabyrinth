@@ -87,10 +87,11 @@ handle_input_locally = false
 size = Vector2i(576, 576)
 render_target_update_mode = 4
 
-[node name="Board" parent="Game/HBoxContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("main") instance=ExtResource("1_hmrev")]
+[node name="Board" parent="Game/HBoxContainer/SubViewportContainer/SubViewport" node_paths=PackedStringArray("main", "network") instance=ExtResource("1_hmrev")]
 process_mode = 1
 position = Vector2(96, 96)
 main = NodePath("../../../../..")
+network = NodePath("../../../../../Network")
 
 [node name="VSeparator2" type="VSeparator" parent="Game/HBoxContainer"]
 modulate = Color(1, 1, 1, 0)
