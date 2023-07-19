@@ -12,6 +12,7 @@ const MAX_PLAYERS = 4
 var players : Array[Player]
 var currentPlayer : Player
 var isCurrentClient := false
+var isLocalGame : bool
 
 var turnStage := TURNSTAGE.TILE
 
@@ -103,8 +104,10 @@ func addPlayer(name : String, clientID : int):
 func startGame():
 	setCurrentPlayer(0)
 	board.generateMap()
-	network.sendServerTiles()
-	network.sendServerPlayers()
+	
+	if !isLocalGame:
+		network.sendServerTiles()
+		network.sendServerPlayers()
 	
 	for i in players.size():
 		var playerStart : Vector2
@@ -130,9 +133,10 @@ func startGame():
 		for i in 24 / players.size():
 			player.neededItems.append(itemsList.pop_back())
 	
-	
 	updateServerTiles()
+	print(players[0].neededItems)
 	updateServerPlayers()
+	print(players[0].neededItems)
 	startServerGame()
 
 
@@ -221,6 +225,9 @@ func startServerGame():
 
 
 func updateServerTiles():
+	if isLocalGame:
+		return
+	
 	var tilePositions : Array[Vector2]
 	var tileRotations : Array[int]
 	
@@ -232,6 +239,9 @@ func updateServerTiles():
 
 
 func updateServerPlayers():
+	if isLocalGame:
+		return
+	
 	var playerPositions : Array[Vector2]
 	var playersNeededItems : Array[Array]
 	
@@ -250,13 +260,14 @@ func joinBoard(str : String):
 
 
 func loadTiles(tileTypes, tileItems):
-	if network.isBoardLeader:
-		return
-	
-	board.loadTiles(tileTypes, tileItems)
+	if !network.isBoardLeader:
+		board.loadTiles(tileTypes, tileItems)
 
 
 func loadPlayers(playerNames : Array, playerOwnedClients : Array):
+	if network.isBoardLeader:
+		return
+	
 	players.clear()
 	for child in $Game/HBoxContainer/Panel2/PlayersList.get_children():
 		if child is PlayerDisplay:

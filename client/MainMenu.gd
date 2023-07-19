@@ -25,6 +25,7 @@ func setShownMenu(menu : Node):
 
 
 func _on_start_local_pressed():
+	main.isLocalGame = true
 	network.setIsBoardLeader(true)
 	main.joinBoard("local")
 
