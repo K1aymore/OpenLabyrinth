@@ -2,7 +2,7 @@ extends Node2D
 
 class_name Board
 
-var main : Main
+@export var main : Main
 
 var tileScene := preload("res://board/tile.tscn")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")

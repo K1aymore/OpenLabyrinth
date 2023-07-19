@@ -14,7 +14,32 @@ const DEFAULTPORT = 4433
 @export var clientConnectButton : Button
 
 
-var boardNum : int
+var boardName : String
+
+
+
+func _ready():
+	# You can save bandwidth by disabling server relay and peer notifications.
+	multiplayer.server_relay = false
+	get_tree().get_multiplayer().allow_object_decoding = false
+
+
+
+
+func callPeers(method : Callable, args : Array):
+	serverCall.rpc_id(1, boardName, method.get_method(), args)
+
+
+@rpc("any_peer")
+func serverCall(boardID, methodName, args):
+	pass
+
+@rpc
+func callFromServer(methodName, args):
+	main.callv(methodName, args)
+
+
+
 
 
 
@@ -45,9 +70,9 @@ func lanPlayerDisconnected(peerID : int):
 
 
 
-func setupClient(ip, port):
-	ip = ip.to_int() if ip.is_valid_int() else DEFAULTIP
-	port = port.to_int() if port.is_valid_int() else DEFAULTPORT
+func setupClient(ip : String, port : int):
+	ip = ip if ip != "" else DEFAULTIP
+	port = port if port != 0 else DEFAULTPORT
 	
 	var peer = ENetMultiplayerPeer.new()
 	peer.create_client(ip, port)
@@ -70,28 +95,37 @@ func connectSuccess():
 	print("Connected to server")
 	clientConnectButton.disabled = false
 	clientConnectButton.text = "Connect"
-	mainMenu.setShownMenu($"../MainMenu/LocalSetup")
+	mainMenu.setShownMenu($"../MainMenu/BoardList")
+	requestBoardList()
 
 
 
-
-
-
-
-func callPeers(method : Callable, args : Array):
-	serverCall.rpc_id(1, boardNum, method.get_method(), args)
 
 
 @rpc("any_peer")
-func serverCall(boardID, methodName, args):
-	pass
+func requestBoardList(peerID : int = 1):
+	requestBoardList.rpc_id(1, multiplayer.get_unique_id())
+
 
 @rpc
-func callFromServer(methodName, args):
-	callv(methodName, args)
+func recieveBoardList(boardList : Array):
+	print("recieved board list ", boardList)
+	
+	var typedBoardList : Array[String]
+	
+	for str in boardList:
+		if str is String:
+			boardList.append(str)
+	boardList
+	mainMenu.addBoardButtons(typedBoardList)
 
 
 
-func printInputs(input1, input2):
-	print(input1)
-	print(input2)
+@rpc("any_peer")
+func serverCreateNewBoard(peerID : int, boardName : String):
+	pass
+
+
+@rpc("any_peer")
+func serverClientJoinBoard(peerID : int, boardName : String):
+	pass

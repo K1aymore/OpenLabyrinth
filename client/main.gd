@@ -3,14 +3,15 @@ extends Control
 class_name Main
 
 
-@export var board : Board
+@onready var board : Board = $Game/HBoxContainer/SubViewportContainer/SubViewport/Board
+@onready var network : Network = $Network
+@onready var mainMenu : MainMenu = $MainMenu
 
 const MAX_PLAYERS = 4
 
 var players : Array[Player]
 var currentPlayer : Player
 var isCurrentClient := false
-var boardNum : int = 0
 
 var turnStage := TURNSTAGE.TILE
 
@@ -22,31 +23,21 @@ enum TURNSTAGE {
 
 func _ready():
 	randomize()
-	# Start paused.
 	get_tree().paused = true
-	# You can save bandwidth by disabling server relay and peer notifications.
-	multiplayer.server_relay = false
-	get_tree().get_multiplayer().allow_object_decoding = true
-	$MainMenu.visible = true
-	$MainMenu/MainMenu.visible = true
-	$HBoxContainer/Panel/GameActions.visible = false
-	$MainMenu/LocalSetup.visible = false
-	$MainMenu/BoardList.visible = false
-	board.main = self
 	
 
 
 func _process(delta):
 	if !isCurrentClient:
-		for button in $HBoxContainer/Panel/GameActions.get_children():
+		for button in $Game/HBoxContainer/Panel/GameActions.get_children():
 			if button is Button:
 				button.disabled = true
 		return
 	
 	
-	$HBoxContainer/Panel/GameActions/Push.disabled = turnStage == TURNSTAGE.MOVE
-	$HBoxContainer/Panel/GameActions/Rotate.disabled = turnStage == TURNSTAGE.MOVE
-	$HBoxContainer/Panel/GameActions/EndMove.disabled = turnStage == TURNSTAGE.TILE
+	$Game/HBoxContainer/Panel/GameActions/Push.disabled = turnStage == TURNSTAGE.MOVE
+	$Game/HBoxContainer/Panel/GameActions/Rotate.disabled = turnStage == TURNSTAGE.MOVE
+	$Game/HBoxContainer/Panel/GameActions/EndMove.disabled = turnStage == TURNSTAGE.TILE
 	
 	if turnStage == TURNSTAGE.MOVE:
 		if Input.is_action_just_pressed("up"):
@@ -95,16 +86,6 @@ func _process(delta):
 
 
 
-func _on_add_player_pressed():
-	if players.size() >= MAX_PLAYERS:
-		return
-	
-	var text : String = $MainMenu/LocalSetup/HBoxContainer/PlayerName.text
-	addPlayer(text, multiplayer.get_unique_id())
-	$MainMenu/LocalSetup/HBoxContainer/PlayerName.text = ""
-	loadServerPlayers()
-
-
 func addPlayer(name : String, clientID : int):
 	var newPlayer := Player.new()
 	newPlayer.name = name if name != "" else str(randi())
@@ -115,28 +96,15 @@ func addPlayer(name : String, clientID : int):
 	var playerDisplay : PlayerDisplay = preload("res://player_display.tscn").instantiate()
 	playerDisplay.main = self
 	playerDisplay.player = newPlayer
-	$HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
-	$MainMenu/PlayerList.text = getPlayerList()
-
-
-
-func _on_create_new_board_pressed():
-	serverCreateNewGame.rpc_id(1, multiplayer.get_unique_id())
-	$MainMenu/BoardList.visible = false
-	$MainMenu/LocalSetup.visible = true
-
-
-func _on_join_board_pressed(boardID):
-	serverClientJoinGame.rpc_id(1, boardID, multiplayer.get_unique_id())
-	$MainMenu/BoardList.visible = false
-	$MainMenu/LocalSetup.visible = true
+	$Game/HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
+	$MainMenu/GameSetup/PlayerList.text = getPlayerList()
 
 
 func startGame():
 	currentPlayer = players[0]
 	board.generateMap()
-	loadServerTiles()
-	loadServerPlayers()
+	sendRemoteTiles()
+	sendRemotePlayers()
 	
 	for i in players.size():
 		var playerStart : Vector2
@@ -165,6 +133,14 @@ func startGame():
 	updateServerTiles()
 	updateServerPlayers()
 	startServerGame()
+	
+	
+	get_tree().paused = false
+	$MainMenu.visible = false
+	$HBoxContainer.visible = true
+	$Game/HBoxContainer/Panel/GameActions.visible = true
+	$Game/HBoxContainer/Panel/GameActions/EndMove.disabled = true
+	board.addPlayerSprites()
 
 
 func nextTurn():
@@ -190,10 +166,10 @@ func getPlayerList() -> String:
 
 func setupMovePlayer():
 	turnStage = TURNSTAGE.MOVE
-	for button in $HBoxContainer/Panel/GameActions.get_children():
+	for button in $Game/HBoxContainer/Panel/GameActions.get_children():
 		if button is Button:
 			button.disabled = true
-	$HBoxContainer/Panel/GameActions/EndMove.disabled = false
+	$Game/HBoxContainer/Panel/GameActions/EndMove.disabled = false
 
 
 func movePlayer(dir : Vector2):
@@ -202,6 +178,12 @@ func movePlayer(dir : Vector2):
 	if currTile != null && nextTile != null && currTile.canMoveThrough(dir) && nextTile.canMoveThrough(-dir):
 		currentPlayer.tile = nextTile
 		updateServerPlayers()
+
+
+func setCurrentPlayer(newCurPlayerNum : int):
+	currentPlayer = players[newCurPlayerNum]
+	$Game/HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
+	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
 
 
 
@@ -228,11 +210,11 @@ func _on_end_move_pressed():
 
 
 
-
 func h():
 	pass
 
-func loadServerPlayers():
+
+func sendRemotePlayers():
 	var playerNames : Array
 	var playerOwnedClients : Array
 	
@@ -240,10 +222,10 @@ func loadServerPlayers():
 		playerNames.append(player.name)
 		playerOwnedClients.append(player.ownedClientID)
 	
-	serverLoadPlayers.rpc_id(1, boardNum, playerNames, playerOwnedClients)
+	network.callPeers(loadPlayers, [playerNames, playerOwnedClients])
 
 
-func loadServerTiles():
+func sendRemoteTiles():
 	var tileTypes : Array
 	var tileItems : Array
 	
@@ -251,11 +233,11 @@ func loadServerTiles():
 		tileTypes.append(tile.type)
 		tileItems.append(tile.item)
 	
-	serverLoadTiles.rpc_id(1, boardNum, tileTypes, tileItems)
+	network.callPeers(loadTiles, [tileTypes, tileItems])
 
 
 func startServerGame():
-	serverStartGame.rpc_id(1, boardNum)
+	network.callPeers(startGame, [])
 
 
 func updateServerTiles():
@@ -266,7 +248,7 @@ func updateServerTiles():
 		tilePositions.append(tile.pos)
 		tileRotations.append(tile.rot)
 	
-	serverUpdateTiles.rpc_id(1, boardNum, tilePositions, tileRotations, board.tiles.find(board.spareTile), board.disabledArrowPos)
+	network.callPeers(updateTiles, [tilePositions, tileRotations, board.tiles.find(board.spareTile), board.disabledArrowPos])
 
 
 func updateServerPlayers():
@@ -278,79 +260,21 @@ func updateServerPlayers():
 		playerPositions.append(player.tile.pos)
 		playersNeededItems.append(player.neededItems)
 	
-	serverUpdatePlayers.rpc_id(1, boardNum, playerPositions, playersNeededItems, players.find(currentPlayer))
+	network.callPeers(updatePlayers, [playersNeededItems, players.find(currentPlayer)])
 
 
 
-@rpc("any_peer", "call_local")
-func serverCreateNewGame(peerID : int):
-	if !is_multiplayer_authority():
-		return
-	pass
+func setBoardName(str : String):
+	network.boardName = str
 
 
-@rpc("any_peer", "call_local")
-func serverClientJoinGame(boardNum : int, peerID : int):
-	if !is_multiplayer_authority():
-		return
-	pass
-
-
-@rpc("any_peer", "call_local")
-func serverLoadTiles(boardNum, tileTypes, tileItems):
-	if !is_multiplayer_authority():
-		return
-	clientLoadTiles.rpc(tileTypes, tileItems)
-
-@rpc("any_peer", "call_local")
-func serverLoadPlayers(boardNum, playerNames : Array, playerOwnedClients : Array):
-	if !is_multiplayer_authority():
-		return
-	clientLoadPlayers.rpc(playerNames, playerOwnedClients)
-
-@rpc("any_peer", "call_local")
-func serverStartGame(boardNum : int):
-	if !is_multiplayer_authority():
-		return
-	clientStartGame.rpc()
-
-@rpc("any_peer", "call_local")
-func serverUpdateTiles(boardNum : int, tilePositions, tileRotations, spareTileID, disabledArrowPos):
-	if !is_multiplayer_authority():
-		return
-	clientUpdateTiles.rpc(tilePositions, tileRotations, spareTileID, disabledArrowPos)
-
-@rpc("any_peer", "call_local")
-func serverUpdatePlayers(boardNum : int, playerPositions, playersNeededItems, newCurPlayerNum : int):
-	if !is_multiplayer_authority():
-		return
-	clientUpdatePlayers.rpc(playerPositions, playersNeededItems, newCurPlayerNum)
-
-
-
-@rpc
-func clientSetBoardID(num : int):
-	boardNum = num
-
-
-@rpc
-func clientLoadBoardIDs(boardIDs : Array):
-	for boardID in boardIDs:
-		var button := JoinBoardButton.new()
-		button.id = boardID
-		button.pressedWithID.connect(_on_join_board_pressed)
-		$MainMenu/BoardList/BoardList.add_child(button)
-
-
-@rpc("call_local")
-func clientLoadTiles(tileTypes, tileItems):
+func loadTiles(tileTypes, tileItems):
 	board.loadTiles(tileTypes, tileItems)
 
 
-@rpc("call_local")
-func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
+func loadPlayers(playerNames : Array, playerOwnedClients : Array):
 	players.clear()
-	for child in $HBoxContainer/Panel2/PlayersList.get_children():
+	for child in $Game/HBoxContainer/Panel2/PlayersList.get_children():
 		if child is PlayerDisplay:
 			child.queue_free()
 	
@@ -358,29 +282,15 @@ func clientLoadPlayers(playerNames : Array, playerOwnedClients : Array):
 		addPlayer(playerNames[i], playerOwnedClients[i])
 
 
-@rpc("call_local")
-func clientStartGame():
-	get_tree().paused = false
-	$MainMenu.visible = false
-	$HBoxContainer.visible = true
-	$HBoxContainer/Panel/GameActions.visible = true
-	$HBoxContainer/Panel/GameActions/EndMove.disabled = true
-	board.addPlayerSprites()
 
-
-@rpc("call_local")
-func clientUpdateTiles(tilePositions, tileRotations : Array, spareTileNum : int, disabledArrowPos : Vector2):
-	if isCurrentClient:
-		return
-	
+func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
 	board.disableArrow(disabledArrowPos)
+	
 
-@rpc("call_local")
-func clientUpdatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):
-	currentPlayer = players[newCurPlayerNum]
-	$HBoxContainer/Panel2/PlayersList/CurrPlayerLabel.text = "Current Player: " + currentPlayer.name
-	isCurrentClient = currentPlayer.ownedClientID == multiplayer.get_unique_id()
+
+func updatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):
+	setCurrentPlayer(newCurPlayerNum)
 	
 	for i in players.size():
 		var player := players[i]
@@ -388,5 +298,4 @@ func clientUpdatePlayers(playerPositions, playersNeededItems, newCurPlayerNum):
 		player.neededItems.clear()
 		for item in playersNeededItems[i]:
 			player.neededItems.append(item)
-
 

@@ -7,13 +7,10 @@ class_name MainMenu
 @export var network : Network
 
 
-@onready var connectIP : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectIP
-@onready var connectPort : LineEdit  = $MainMenu/MainMenu/HBoxContainer2/ConnectPort
-
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	visible = true
+	setShownMenu($MainMenu)
 
 
 
@@ -28,7 +25,7 @@ func setShownMenu(menu : Node):
 
 
 func _on_start_local_pressed():
-	setShownMenu($LocalSetup)
+	setShownMenu($GameSetup)
 
 
 func _on_start_lan_pressed():
@@ -36,7 +33,10 @@ func _on_start_lan_pressed():
 
 
 func _on_connect_client_pressed():
-	network.setupClient($MainMenu/Buttons/HBoxContainer2/ConnectIP.text, $MainMenu/Buttons/HBoxContainer2/ConnectPort.text)
+	var ip = $MainMenu/Buttons/HBoxContainer2/ConnectIP.text
+	var port : String = $MainMenu/Buttons/HBoxContainer2/ConnectPort.text
+	
+	network.setupClient(ip, port.to_int())
 
 
 # start local game
@@ -44,9 +44,39 @@ func _on_start_game_pressed():
 	main.startGame()
 
 
-func _on_add_player_pressed():
-	pass # Replace with function body.
+
+func _on_refresh_board_list_pressed():
+	network.requestBoardList()
+
+
+func addBoardButtons(boardList : Array[String]):
+	for boardName in boardList:
+		var button := JoinBoardButton.new()
+		button.boardName = boardName
+		button.pressedWithName.connect(_on_join_board_pressed)
+		$BoardList/BoardList.add_child(button)
+
+
 
 
 func _on_create_new_board_pressed():
-	pass # Replace with function body.
+	var boardNameEntry : LineEdit = $BoardList/VBoxContainer/BoardName
+	network.serverCreateNewBoard.rpc_id(1, multiplayer.get_unique_id(), boardNameEntry.text)
+	setShownMenu($GameSetup)
+
+
+
+func _on_join_board_pressed(boardName):
+	network.serverClientJoinBoard.rpc_id(1, multiplayer.get_unique_id(), boardName)
+	setShownMenu($GameSetup)
+
+
+
+
+
+func _on_add_player_pressed():
+	var playerNameField : LineEdit = $GameSetup/Menu/HBoxContainer/PlayerName
+	var text : String = playerNameField.text
+	main.addPlayer(text, multiplayer.get_unique_id())
+	playerNameField.text = ""
+	network.loadServerPlayers()
