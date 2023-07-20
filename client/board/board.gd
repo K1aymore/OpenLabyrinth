@@ -193,14 +193,15 @@ func addPlayerSprites():
 		add_child(newSprite)
 
 
-func loadTiles(tileTypes : Array, tileItems : Array):
+func loadTiles(tileTypes : Array, tileItems : Array, tileColors : Array):
 	tiles.clear()
 	for child in get_children():
 		if child is TileSprite:
 			child.queue_free()
 	
 	for i in tileTypes.size():
-		addNewTile(tileTypes[i], tileItems[i])
+		var newTile = addNewTile(tileTypes[i], tileItems[i])
+		newTile.color = tileColors[i]
 	
 	addTileSprites()
 

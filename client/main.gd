@@ -129,7 +129,6 @@ func startGame():
 		var startTile := board.getTile(playerStart)
 		players[i].tile = startTile
 		players[i].homeTile = startTile
-		startTile.homePlayer = players[i]
 	
 	board.addTileSprites()
 	
@@ -271,9 +270,9 @@ func joinBoard(str : String):
 	mainMenu.setShownMenu($MainMenu/GameSetup)
 
 
-func loadTiles(tileTypes, tileItems):
+func loadTiles(tileTypes, tileItems, tileColors):
 	if !network.isBoardLeader:
-		board.loadTiles(tileTypes, tileItems)
+		board.loadTiles(tileTypes, tileItems, tileColors)
 
 
 func loadPlayers(playerNames : Array, playerOwnedClients : Array, playerColors : Array):

@@ -55,8 +55,8 @@ func _ready():
 	
 	itemSprite.texture = itemImages[tile.item]
 	
-	if tile.homePlayer != null:
-		$HomeCircle.self_modulate = tile.homePlayer.displayColor() * 0.70
+	if tile.color != null:
+		$HomeCircle.self_modulate = Player.getColor(tile.color) * 0.70
 	else:
 		$HomeCircle.visible = false
 

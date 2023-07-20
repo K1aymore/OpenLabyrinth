@@ -136,12 +136,14 @@ func serverClientJoinBoard(peerID : int, boardName : String):
 func sendServerTiles():
 	var tileTypes : Array
 	var tileItems : Array
+	var tileColors : Array
 	
 	for tile in board.tiles:
 		tileTypes.append(tile.type)
 		tileItems.append(tile.item)
+		tileColors.append(tile.color)
 	
-	callClients(main.loadTiles, [tileTypes, tileItems])
+	callClients(main.loadTiles, [tileTypes, tileItems, tileColors])
 
 
 
