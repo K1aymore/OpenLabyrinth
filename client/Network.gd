@@ -150,10 +150,12 @@ func sendServerTiles():
 func sendServerPlayers():
 	var playerNames : Array
 	var playerOwnedClients : Array
+	var playerColors : Array
 	
 	for player in main.players:
 		playerNames.append(player.name)
 		playerOwnedClients.append(player.ownedClientID)
+		playerColors.append(player.color)
 	
-	callClients(main.loadPlayers, [playerNames, playerOwnedClients])
+	callClients(main.loadPlayers, [playerNames, playerOwnedClients, playerColors])
 

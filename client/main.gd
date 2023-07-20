@@ -87,9 +87,9 @@ func _process(delta):
 
 
 
-func addPlayer(name : String, clientID : int):
+func addPlayer(name : String, clientID : int) -> Player:
 	if players.size() >= 4:
-		return
+		return null
 	
 	var newPlayer := Player.new()
 	newPlayer.name = name if name != "" else str(randi())
@@ -102,15 +102,13 @@ func addPlayer(name : String, clientID : int):
 	playerDisplay.player = newPlayer
 	$Game/HBoxContainer/Panel2/PlayersList.add_child(playerDisplay)
 	$MainMenu/GameSetup/PlayerList.text = getPlayerList()
+	
+	return newPlayer
 
 
 func startGame():
 	setCurrentPlayer(0)
 	board.generateMap()
-	
-	if !isLocalGame:
-		network.sendServerTiles()
-		network.sendServerPlayers()
 	
 	for i in players.size():
 		var playerStart : Vector2
@@ -118,19 +116,15 @@ func startGame():
 			0:
 				playerStart = Vector2(0, 0)
 				players[i].color = Tile.COLOR.BLUE
-				players[i].colorColor = Color.DODGER_BLUE
 			1:
 				playerStart = Vector2(6, 0)
 				players[i].color = Tile.COLOR.GREEN
-				players[i].colorColor = Color.FOREST_GREEN
 			2:
 				playerStart = Vector2(0, 6)
 				players[i].color = Tile.COLOR.YELLOW
-				players[i].colorColor = Color.GOLD
 			3:
 				playerStart = Vector2(6, 6)
 				players[i].color = Tile.COLOR.RED
-				players[i].colorColor = Color.RED
 		
 		var startTile := board.getTile(playerStart)
 		players[i].tile = startTile
@@ -141,13 +135,18 @@ func startGame():
 		itemsList.append(i)
 	itemsList.shuffle()
 	
+	
 	for player in players:
 		for i in 24 / players.size():
 			player.neededItems.append(itemsList.pop_back())
 	
-	updateServerTiles()
-	updateServerPlayers()
-	startServerGame()
+	
+	if !isLocalGame:
+		network.sendServerTiles()
+		network.sendServerPlayers()
+		updateServerTiles()
+		updateServerPlayers()
+		startServerGame()
 
 
 func switchToGame():
@@ -274,14 +273,16 @@ func loadTiles(tileTypes, tileItems):
 		board.loadTiles(tileTypes, tileItems)
 
 
-func loadPlayers(playerNames : Array, playerOwnedClients : Array):	
+func loadPlayers(playerNames : Array, playerOwnedClients : Array, playerColors : Array):
 	players.clear()
 	for child in $Game/HBoxContainer/Panel2/PlayersList.get_children():
 		if child is PlayerDisplay:
 			child.queue_free()
 	
 	for i in playerNames.size():
-		addPlayer(playerNames[i], playerOwnedClients[i])
+		var player = addPlayer(playerNames[i], playerOwnedClients[i])
+		if player != null:
+			player.color = playerColors[i]
 
 
 func updateSpareTile(tilePosition, tileRotation):

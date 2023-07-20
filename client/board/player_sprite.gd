@@ -10,7 +10,7 @@ func _ready():
 	position = Vector2(3, 3) * Tile.TILESIZE
 	scale = Vector2(0.1, 0.1)
 	
-	self_modulate = player.colorColor
+	self_modulate = player.displayColor()
 
 
 func _process(delta):
