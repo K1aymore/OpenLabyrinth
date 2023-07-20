@@ -191,6 +191,7 @@ func addPlayerSprites():
 	for player in main.players:
 		var newSprite : PlayerSprite = playerSpriteScene.instantiate()
 		newSprite.player = player
+		newSprite.main = main
 		add_child(newSprite)
 
 

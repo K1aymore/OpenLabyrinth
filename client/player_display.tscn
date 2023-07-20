@@ -18,9 +18,9 @@ layout_mode = 2
 text = "Klaymore"
 
 [node name="Sprite2D" type="Sprite2D" parent="Label"]
-position = Vector2(-8, 12)
+position = Vector2(-5.398, 12.211)
 rotation = 1.5708
-scale = Vector2(0.052, 0.12)
+scale = Vector2(0.052, 0.0732025)
 texture = ExtResource("3_0vf0e")
 offset = Vector2(0, 108)
 
