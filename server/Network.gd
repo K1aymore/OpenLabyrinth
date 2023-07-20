@@ -8,7 +8,8 @@ class_name Network
 
 @rpc("any_peer")
 func serverCall(boardName, methodName, args):
-	callFromServer.rpc(methodName, args)
+	for peerID in main.boards[boardName].peerIDs:
+		callFromServer.rpc_id(peerID, methodName, args)
 
 
 @rpc

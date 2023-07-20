@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=13 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
@@ -66,10 +66,60 @@ tracks/1/keys = {
 "update": 0,
 "values": [0.0]
 }
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Buttons:position:x")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(521, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Buttons:position:y")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(297.5, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_xw3l8"]
+resource_name = "menuSway"
+length = 9.0
+loop_mode = 1
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Buttons:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(2, 2, 2, 2, 2),
+"points": PackedFloat32Array(521, 0, 0, 0.3, -74, 227, -0.367573, 14.1778, 0.7, -27, 269, -0.5, -62, 0.350288, 43.4357, 813, -1.19893, -5.44967, 1.1, 5, 521, -0.2, 52, 0, 0),
+"times": PackedFloat32Array(0, 2, 4, 7, 9)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Buttons:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(2, 2, 2, 2, 0),
+"points": PackedFloat32Array(297.5, 0, 0, 1.5, 8.5, 251, -0.479673, -19.1869, 0.6, 24, 465, -1, -20, 1.29455, 25.891, 228, -0.5, 0, 0.300666, 0, 296, -1, 7, 0, 0),
+"times": PackedFloat32Array(0, 2, 4, 7, 8.9)
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_rhvg2"]
 _data = {
 "RESET": SubResource("Animation_g8e5r"),
+"menuSway": SubResource("Animation_xw3l8"),
 "titleSway": SubResource("Animation_e4njo")
 }
 
@@ -374,9 +424,10 @@ anchor_bottom = 0.5
 offset_left = -119.0
 offset_top = -62.5
 offset_right = 119.0
-offset_bottom = 62.5
+offset_bottom = 62.501
 grow_horizontal = 2
 grow_vertical = 2
+metadata/_edit_group_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/MainMenu/Buttons"]
 layout_mode = 2

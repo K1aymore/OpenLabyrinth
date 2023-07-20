@@ -8,7 +8,7 @@ signal pressedWithName
 
 
 func _ready():
-	text = "Join Board " + boardName
+	text = "Join board: " + boardName
 
 func _pressed():
 	pressedWithName.emit(boardName)
