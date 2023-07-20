@@ -127,8 +127,6 @@ func startGame():
 		players[i].homeTile = startTile
 		players[i].color = startTile.color
 	
-	board.addTileSprites()
-	
 	var itemsList : Array[Tile.ITEM]
 	for i in range(1, Tile.ITEM.size()):
 		itemsList.append(i)

@@ -152,6 +152,7 @@ func generateMap():
 	spareTile.pos = Vector2(3, -1)
 	spareTile.isSpare = true
 	
+	addTileSprites()
 
 
 

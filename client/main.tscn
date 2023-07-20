@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=12 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
@@ -10,6 +10,68 @@
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5upww"]
 bg_color = Color(0.0429, 0.0429, 0.11, 1)
+
+[sub_resource type="Animation" id="Animation_e4njo"]
+resource_name = "titleSway"
+length = 6.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Title:scale")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 3, 6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(1.107, 1.107), Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Title:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 3, 6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [-0.0349066, 0.0680678, -0.0349066]
+}
+
+[sub_resource type="Animation" id="Animation_g8e5r"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Title:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Title:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_rhvg2"]
+_data = {
+"RESET": SubResource("Animation_g8e5r"),
+"titleSway": SubResource("Animation_e4njo")
+}
 
 [node name="Main" type="Control"]
 process_mode = 3
@@ -263,11 +325,12 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -112.0
-offset_top = 100.0
-offset_right = 112.0
-offset_bottom = 163.998
+offset_left = 2.0
+offset_top = 142.0
+offset_right = 2.0
+offset_bottom = 142.0
 grow_horizontal = 2
+metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="MainMenu/MainMenu/Title"]
 layout_mode = 1
@@ -283,20 +346,20 @@ vertical_alignment = 1
 
 [node name="TextureRect2" type="TextureRect" parent="MainMenu/MainMenu/Title"]
 layout_mode = 0
-offset_left = 25.0
-offset_top = -18.0
-offset_right = 97.0
-offset_bottom = 31.0
+offset_left = -87.0
+offset_top = -51.0
+offset_right = -15.0
+offset_bottom = -2.0
 texture = ExtResource("6_jdfwl")
 expand_mode = 2
 stretch_mode = 4
 
 [node name="TextureRect" type="TextureRect" parent="MainMenu/MainMenu/Title"]
 layout_mode = 0
-offset_left = 25.0
-offset_top = 29.0
-offset_right = 84.0
-offset_bottom = 78.0
+offset_left = -87.0
+offset_top = -5.0
+offset_right = -28.0
+offset_bottom = 44.0
 texture = ExtResource("5_ucoeb")
 expand_mode = 2
 stretch_mode = 4
@@ -352,6 +415,12 @@ placeholder_text = "Port"
 max_length = 5
 expand_to_text_length = true
 caret_blink = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MainMenu/MainMenu"]
+autoplay = "titleSway"
+libraries = {
+"": SubResource("AnimationLibrary_rhvg2")
+}
 
 [node name="Network" type="Node" parent="." node_paths=PackedStringArray("main", "board", "mainMenu", "clientConnectButton")]
 script = ExtResource("5_4euey")
