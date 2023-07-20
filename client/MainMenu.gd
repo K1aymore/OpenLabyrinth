@@ -11,6 +11,8 @@ class_name MainMenu
 func _ready():
 	visible = true
 	setShownMenu($MainMenu)
+	$MainMenu/Title/TextureRect.modulate *= 1.1
+	$MainMenu/Title/TextureRect2.modulate *= 1.1
 
 
 

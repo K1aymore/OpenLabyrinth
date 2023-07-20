@@ -146,7 +146,7 @@ func startGame():
 		network.sendServerPlayers()
 		updateServerTiles()
 		updateServerPlayers()
-		startServerGame()
+	startServerGame()
 
 
 func switchToGame():

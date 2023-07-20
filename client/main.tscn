@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=9 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
 [ext_resource type="Theme" uid="uid://m0mh33vr88g5" path="res://new_theme.tres" id="3_rvth5"]
 [ext_resource type="Script" path="res://MainMenu.gd" id="4_4yaiy"]
 [ext_resource type="Script" path="res://Network.gd" id="5_4euey"]
+[ext_resource type="Texture2D" uid="uid://b0jh3g75cxj2k" path="res://assets/basic/corner.png" id="5_ucoeb"]
+[ext_resource type="Texture2D" uid="uid://w1j5c2v1plp3" path="res://assets/basic/straight.png" id="6_jdfwl"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5upww"]
 bg_color = Color(0.0429, 0.0429, 0.11, 1)
@@ -255,6 +257,49 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="Title" type="Control" parent="MainMenu/MainMenu"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -112.0
+offset_top = 100.0
+offset_right = 112.0
+offset_bottom = 163.998
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="MainMenu/MainMenu/Title"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 83
+text = "OpenLabyrinth"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TextureRect2" type="TextureRect" parent="MainMenu/MainMenu/Title"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = -18.0
+offset_right = 97.0
+offset_bottom = 31.0
+texture = ExtResource("6_jdfwl")
+expand_mode = 2
+stretch_mode = 4
+
+[node name="TextureRect" type="TextureRect" parent="MainMenu/MainMenu/Title"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 29.0
+offset_right = 84.0
+offset_bottom = 78.0
+texture = ExtResource("5_ucoeb")
+expand_mode = 2
+stretch_mode = 4
 
 [node name="Buttons" type="VBoxContainer" parent="MainMenu/MainMenu"]
 layout_mode = 1

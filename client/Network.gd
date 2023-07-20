@@ -113,8 +113,6 @@ func requestBoardList(peerID : int = 1):
 
 @rpc
 func recieveBoardList(boardList : Array):
-	print("recieved board list ", boardList)
-	
 	var typedBoardList : Array[String]
 	
 	for str in boardList:
