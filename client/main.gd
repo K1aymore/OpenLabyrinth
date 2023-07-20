@@ -115,20 +115,17 @@ func startGame():
 		match i:
 			0:
 				playerStart = Vector2(0, 0)
-				players[i].color = Tile.COLOR.BLUE
 			1:
 				playerStart = Vector2(6, 0)
-				players[i].color = Tile.COLOR.GREEN
 			2:
 				playerStart = Vector2(0, 6)
-				players[i].color = Tile.COLOR.YELLOW
 			3:
 				playerStart = Vector2(6, 6)
-				players[i].color = Tile.COLOR.RED
 		
 		var startTile := board.getTile(playerStart)
 		players[i].tile = startTile
 		players[i].homeTile = startTile
+		players[i].color = startTile.color
 	
 	board.addTileSprites()
 	

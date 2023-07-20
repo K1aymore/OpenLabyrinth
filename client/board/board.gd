@@ -74,12 +74,12 @@ func generateMap():
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(6, 0)
 	newTile.rot = 180
-	newTile.color = Tile.COLOR.YELLOW
+	newTile.color = Tile.COLOR.GREEN
 	
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(0, 6)
 	newTile.rot = 0
-	newTile.color = Tile.COLOR.GREEN
+	newTile.color = Tile.COLOR.YELLOW
 	
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(6, 6)
