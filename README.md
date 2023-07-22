@@ -1,9 +1,9 @@
 # OpenLabyrinth
-Godot 4 remake of the board game Labrynth.
+Godot 4 remake of the board game Labyrinth.
 
 # Features
 
-- 4 player local-coop
+- 1-4 player local-coop
 - Dedicated server multiplayer
 - TODO: LAN multiplayer
 
