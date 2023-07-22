@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://coj07lq55l6do"]
 
-[ext_resource type="Texture2D" uid="uid://bi2ekcsxppa51" path="res://icon.svg" id="1_ux5i6"]
+[ext_resource type="Texture2D" uid="uid://b5fsx41alb8ro" path="res://assets/basic/Circle.png" id="1_fvny1"]
 [ext_resource type="Script" path="res://board/player_sprite.gd" id="1_x7l0w"]
 
 [node name="PlayerSprite" type="Sprite2D"]
-texture = ExtResource("1_ux5i6")
+texture = ExtResource("1_fvny1")
 script = ExtResource("1_x7l0w")

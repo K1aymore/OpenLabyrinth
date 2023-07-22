@@ -54,6 +54,11 @@ func _ready():
 			push_error()
 	
 	itemSprite.texture = itemImages[tile.item]
+	
+	if tile.color != null:
+		$HomeCircle.self_modulate = Player.getColor(tile.color) * 0.70
+	else:
+		$HomeCircle.visible = false
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

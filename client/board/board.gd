@@ -2,7 +2,8 @@ extends Node2D
 
 class_name Board
 
-var main : Main
+@export var main : Main
+@export var network : Network
 
 var tileScene := preload("res://board/tile.tscn")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")
@@ -73,12 +74,12 @@ func generateMap():
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(6, 0)
 	newTile.rot = 180
-	newTile.color = Tile.COLOR.YELLOW
+	newTile.color = Tile.COLOR.GREEN
 	
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(0, 6)
 	newTile.rot = 0
-	newTile.color = Tile.COLOR.GREEN
+	newTile.color = Tile.COLOR.YELLOW
 	
 	newTile = addNewTile(Tile.TYPE.CORNER, Tile.ITEM.NONE)
 	newTile.pos = Vector2(6, 6)
@@ -150,6 +151,8 @@ func generateMap():
 	spareTile = addNewTile(Tile.TYPE.STRAIGHT, 0)
 	spareTile.pos = Vector2(3, -1)
 	spareTile.isSpare = true
+	
+	addTileSprites()
 
 
 
@@ -162,10 +165,10 @@ func addNewTile(type, item) -> Tile:
 		item = Tile.ITEM.NONE
 	
 	if type == null || !(type is Tile.TYPE):
-		var num := randi_range(0, 99)
-		if num < 55:
+		var rand = randi_range(0, 99)
+		if rand < 40:
 			type = Tile.TYPE.CORNER
-		elif num < 80:
+		elif rand < 80:
 			type = Tile.TYPE.STRAIGHT
 		else:
 			type = Tile.TYPE.TSHAPE
@@ -174,27 +177,35 @@ func addNewTile(type, item) -> Tile:
 	newTile.type = type
 	newTile.item = item
 	tiles.append(newTile)
-	var newTileSprite := tileSpriteScene.instantiate()
-	newTileSprite.tile = newTile
-	add_child(newTileSprite)
 	return newTile
+
+
+func addTileSprites():
+	for tile in tiles:
+		var newTileSprite := tileSpriteScene.instantiate()
+		newTileSprite.tile = tile
+		add_child(newTileSprite)
 
 
 func addPlayerSprites():
 	for player in main.players:
 		var newSprite : PlayerSprite = playerSpriteScene.instantiate()
 		newSprite.player = player
+		newSprite.main = main
 		add_child(newSprite)
 
 
-func loadTiles(tileTypes : Array, tileItems : Array):
+func loadTiles(tileTypes : Array, tileItems : Array, tileColors : Array):
 	tiles.clear()
 	for child in get_children():
 		if child is TileSprite:
 			child.queue_free()
 	
 	for i in tileTypes.size():
-		addNewTile(tileTypes[i], tileItems[i])
+		var newTile = addNewTile(tileTypes[i], tileItems[i])
+		newTile.color = tileColors[i]
+	
+	addTileSprites()
 
 
 func updateTiles(tilePositions : Array, tileRotations : Array, spareTileNum : int):
@@ -298,13 +309,13 @@ func moveSpareTile(pos : Vector2):
 			pos == Vector2(-1,7) || pos == Vector2(7, 7):
 		
 		spareTile.pos = pos
-		main.updateServerTiles()
+		network.callClients(main.updateSpareTile, [spareTile.pos, spareTile.rot])
 
 
 
 func rotateSpareTile():
 	spareTile.rot = snappedi(spareTile.rot + 90, 90)
-	main.updateServerTiles()
+	network.callClients(main.updateSpareTile, [spareTile.pos, spareTile.rot])
 
 
 

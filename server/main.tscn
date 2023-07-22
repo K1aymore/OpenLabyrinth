@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cb8dbenvikajj"]
+[gd_scene load_steps=3 format=3 uid="uid://cb8dbenvikajj"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
+[ext_resource type="Script" path="res://Network.gd" id="2_4lj57"]
 
 [node name="Main" type="Control"]
 process_mode = 3
@@ -11,3 +12,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ilq0h")
+
+[node name="Network" type="Node" parent="."]
+script = ExtResource("2_4lj57")

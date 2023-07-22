@@ -2,14 +2,13 @@ extends Button
 
 class_name JoinBoardButton
 
+var boardName : String
 
-var id : int
-
-signal pressedWithID
+signal pressedWithName
 
 
 func _ready():
-	text = "Join Board " + str(id)
+	text = "Join board: " + boardName
 
 func _pressed():
-	pressedWithID.emit(id)
+	pressedWithName.emit(boardName)

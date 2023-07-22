@@ -6,6 +6,7 @@ const TILESIZE = 60
 var type := TYPE.STRAIGHT
 var color := COLOR.NONE
 var item : ITEM = ITEM.NONE
+var homePlayer : Player
 
 var isSpare := false
 
@@ -49,9 +50,9 @@ enum ITEM {
 enum COLOR {
 	NONE,
 	BLUE,
-	RED,
-	YELLOW,
 	GREEN,
+	YELLOW,
+	RED,
 }
 
 
