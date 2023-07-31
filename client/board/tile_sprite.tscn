@@ -8,8 +8,10 @@ script = ExtResource("1_0fm7x")
 
 [node name="ItemSprite" type="Sprite2D" parent="."]
 z_index = 10
+texture_filter = 2
 scale = Vector2(2.5, 2.5)
 
 [node name="HomeCircle" type="Sprite2D" parent="."]
+texture_filter = 2
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("2_oo5rf")

@@ -5,7 +5,7 @@ class_name Board
 @export var main : Main
 @export var network : Network
 
-var tileScene := preload("res://board/tile.tscn")
+var tileScene := preload("res://board/tile.gd")
 var tileSpriteScene := preload("res://board/tile_sprite.tscn")
 var playerSpriteScene := preload("res://board/player_sprite.tscn")
 var pushArrowScene := preload("res://board/push_arrow.tscn")
@@ -130,12 +130,23 @@ func generateMap():
 			newTile.pos = Vector2(horzNum, vertNum)
 	
 	
+	var tileShapesList : Array[Tile.TYPE]
+	
+	for i in 16:
+		tileShapesList.append(Tile.TYPE.CORNER)
+	for i in 12:
+		tileShapesList.append(Tile.TYPE.STRAIGHT)
+	for i in 6:
+		tileShapesList.append(Tile.TYPE.TSHAPE)
+	
+	tileShapesList.shuffle()
+	
 	for vertNum in range(0, 7):
 		for horzNum in range(0, 7):
 			if getTile(Vector2(horzNum, vertNum)) != null:
 				continue
 			
-			newTile = addNewTile(null, Tile.ITEM.NONE)
+			newTile = addNewTile(tileShapesList.pop_back(), Tile.ITEM.NONE)
 			newTile.rot = randi_range(0, 3) * 90
 			newTile.pos = Vector2(horzNum, vertNum)
 	
@@ -163,15 +174,6 @@ func addSolidTile(itemList : Array[Tile.ITEM]) -> Tile:
 func addNewTile(type, item) -> Tile:
 	if item == null || !(item is Tile.ITEM):
 		item = Tile.ITEM.NONE
-	
-	if type == null || !(type is Tile.TYPE):
-		var rand = randi_range(0, 99)
-		if rand < 40:
-			type = Tile.TYPE.CORNER
-		elif rand < 80:
-			type = Tile.TYPE.STRAIGHT
-		else:
-			type = Tile.TYPE.TSHAPE
 	
 	var newTile := Tile.new()
 	newTile.type = type

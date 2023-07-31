@@ -4,5 +4,6 @@
 [ext_resource type="Script" path="res://board/player_sprite.gd" id="1_x7l0w"]
 
 [node name="PlayerSprite" type="Sprite2D"]
+texture_filter = 2
 texture = ExtResource("1_fvny1")
 script = ExtResource("1_x7l0w")
