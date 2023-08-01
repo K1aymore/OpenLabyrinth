@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://g6ukwrh2fuwv"]
+[gd_scene load_steps=13 format=3 uid="uid://g6ukwrh2fuwv"]
 
 [ext_resource type="PackedScene" uid="uid://csmouykt28q6s" path="res://board/board.tscn" id="1_hmrev"]
 [ext_resource type="Script" path="res://main.gd" id="1_ilq0h"]
@@ -73,6 +73,10 @@ _data = {
 "titleSway": SubResource("Animation_e4njo")
 }
 
+[sub_resource type="LabelSettings" id="LabelSettings_p14y2"]
+line_spacing = 0.0
+font_size = 24
+
 [node name="Main" type="Control"]
 process_mode = 3
 layout_mode = 3
@@ -94,6 +98,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_5upww")
+metadata/_edit_lock_ = true
 
 [node name="HBoxContainer" type="HBoxContainer" parent="Game"]
 layout_mode = 1
@@ -197,6 +202,7 @@ script = ExtResource("4_4yaiy")
 main = NodePath("..")
 board = NodePath("../Game/HBoxContainer/SubViewportContainer/SubViewport/Board")
 network = NodePath("../Network")
+metadata/_edit_lock_ = true
 
 [node name="BoardList" type="Control" parent="MainMenu"]
 visible = false
@@ -319,6 +325,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+metadata/_edit_lock_ = true
 
 [node name="Title" type="Control" parent="MainMenu/MainMenu"]
 layout_mode = 1
@@ -423,6 +430,35 @@ libraries = {
 "": SubResource("AnimationLibrary_rhvg2")
 }
 
+[node name="Options" type="VBoxContainer" parent="MainMenu/MainMenu"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -382.0
+offset_top = -109.0
+offset_right = -220.0
+offset_bottom = 148.0
+grow_horizontal = 0
+grow_vertical = 2
+metadata/_edit_group_ = true
+
+[node name="Label" type="Label" parent="MainMenu/MainMenu/Options"]
+layout_mode = 2
+text = "Options"
+label_settings = SubResource("LabelSettings_p14y2")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Fullscreen" type="CheckButton" parent="MainMenu/MainMenu/Options"]
+layout_mode = 2
+size_flags_vertical = 4
+button_pressed = true
+text = "Fullscreen"
+alignment = 1
+
 [node name="Network" type="Node" parent="." node_paths=PackedStringArray("main", "board", "mainMenu", "clientConnectButton")]
 script = ExtResource("5_4euey")
 main = NodePath("..")
@@ -440,3 +476,4 @@ clientConnectButton = NodePath("../MainMenu/MainMenu/Buttons/HBoxContainer2/Conn
 [connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer/StartLocal" to="MainMenu" method="_on_start_local_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer3/StartLan" to="MainMenu" method="_on_start_lan_pressed"]
 [connection signal="pressed" from="MainMenu/MainMenu/Buttons/HBoxContainer2/ConnectClient" to="MainMenu" method="_on_connect_client_pressed"]
+[connection signal="toggled" from="MainMenu/MainMenu/Options/Fullscreen" to="MainMenu" method="_on_fullscreen_toggled"]

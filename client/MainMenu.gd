@@ -13,7 +13,7 @@ func _ready():
 	setShownMenu($MainMenu)
 	$MainMenu/Title/TextureRect.modulate *= 1.1
 	$MainMenu/Title/TextureRect2.modulate *= 1.1
-
+	$MainMenu/Options/Fullscreen.button_pressed = get_window().mode == Window.MODE_FULLSCREEN
 
 
 func setShownMenu(menu : Node):
@@ -85,3 +85,10 @@ func _on_add_player_pressed():
 	main.addPlayer(playerNameField.text, multiplayer.get_unique_id())
 	playerNameField.text = ""
 	network.sendServerPlayers()
+
+
+func _on_fullscreen_toggled(buttonOn):
+	if buttonOn:
+		get_window().mode = Window.MODE_FULLSCREEN
+	else:
+		get_window().mode = Window.MODE_MAXIMIZED
