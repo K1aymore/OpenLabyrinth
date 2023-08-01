@@ -398,7 +398,8 @@ layout_mode = 2
 
 [node name="StartLan" type="Button" parent="MainMenu/MainMenu/Buttons/HBoxContainer3"]
 layout_mode = 2
-text = "Start LAN Game"
+disabled = true
+text = "WIP: Start LAN Game"
 
 [node name="LanPort" type="LineEdit" parent="MainMenu/MainMenu/Buttons/HBoxContainer3"]
 layout_mode = 2

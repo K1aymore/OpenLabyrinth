@@ -143,6 +143,7 @@ func startGame():
 		network.sendServerPlayers()
 		updateServerTiles()
 		updateServerPlayers()
+	
 	startServerGame()
 
 
@@ -290,7 +291,7 @@ func updateSpareTile(tilePosition, tileRotation):
 	board.spareTile.rot = tileRotation
 
 
-func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):	
+func updateTiles(tilePositions, tileRotations, spareTileNum, disabledArrowPos):
 	board.updateTiles(tilePositions, tileRotations, spareTileNum)
 	board.disableArrow(disabledArrowPos)
 
